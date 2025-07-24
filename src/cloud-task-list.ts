@@ -1,6 +1,6 @@
 import { Task } from './task.js';
 import { TaskList } from './task-list.js';
-import { supabase } from './supabase.js';
+import { supabase, isSupabaseConfigured } from './supabase.js';
 import { AuthService } from './auth.js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -29,6 +29,10 @@ export class CloudTaskList extends TaskList {
     this.loadCloudTasks();
     this.loadOfflineChanges();
     this.setupOfflineDetection();
+  }
+
+  private checkSupabaseConfigured(): boolean {
+    return Boolean(isSupabaseConfigured && supabase !== null);
   }
 
   // Override parent loadTasks to use cloud-specific file
@@ -87,6 +91,9 @@ export class CloudTaskList extends TaskList {
   }
 
   private async testConnection(): Promise<void> {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase not configured');
+    }
     const { data, error } = await supabase.from('tasks').select('id').limit(1);
     if (error) throw error;
   }
@@ -117,13 +124,17 @@ export class CloudTaskList extends TaskList {
   }
 
   async syncFromCloud(): Promise<{ success: boolean; error?: string }> {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: false, error: 'Cloud sync is not configured' };
+    }
+
     if (!this.authService.isAuthenticated()) {
       return { success: false, error: 'Not authenticated' };
     }
 
     try {
       const userId = this.authService.getUserId();
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('tasks')
         .select('*')
         .eq('user_id', userId);
@@ -158,6 +169,10 @@ export class CloudTaskList extends TaskList {
   }
 
   async syncToCloud(): Promise<{ success: boolean; error?: string }> {
+    if (!this.checkSupabaseConfigured()) {
+      return { success: false, error: 'Cloud sync is not configured' };
+    }
+
     if (!this.authService.isAuthenticated()) {
       return { success: false, error: 'Not authenticated' };
     }
@@ -169,7 +184,7 @@ export class CloudTaskList extends TaskList {
       }
 
       // Delete all existing tasks for the user
-      await supabase.from('tasks').delete().eq('user_id', userId);
+      await supabase!.from('tasks').delete().eq('user_id', userId);
 
       // Insert all current tasks
       const cloudTasks = this.tasks.map(task => ({
@@ -184,7 +199,7 @@ export class CloudTaskList extends TaskList {
       }));
 
       if (cloudTasks.length > 0) {
-        const { error } = await supabase.from('tasks').insert(cloudTasks);
+        const { error } = await supabase!.from('tasks').insert(cloudTasks);
         if (error) {
           this.isOnline = false;
           return { success: false, error: error.message };
@@ -393,10 +408,14 @@ export class CloudTaskList extends TaskList {
   }
 
   private async syncTaskToCloud(task: Task): Promise<void> {
+    if (!this.checkSupabaseConfigured()) {
+      throw new Error('Supabase not configured');
+    }
+
     const userId = this.authService.getUserId();
     if (!userId) return;
 
-    const { error } = await supabase.from('tasks').upsert({
+    const { error } = await supabase!.from('tasks').upsert({
       id: task.id,
       user_id: userId,
       description: task.description,
@@ -413,7 +432,11 @@ export class CloudTaskList extends TaskList {
   }
 
   private async deleteTaskFromCloud(taskId: string): Promise<void> {
-    const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+    if (!this.checkSupabaseConfigured()) {
+      throw new Error('Supabase not configured');
+    }
+
+    const { error } = await supabase!.from('tasks').delete().eq('id', taskId);
     if (error) {
       throw error;
     }

@@ -34,6 +34,7 @@ export function HelpScreen({ onClose }: HelpScreenProps) {
         <Text>/projects                 Show all projects</Text>
         <Text>/sync                     Sync with cloud</Text>
         <Text>/ids                      Toggle task ID display</Text>
+        <Text>/status                   Show TASK.SH service status</Text>
         <Text>Esc                       Quit</Text>
       </Box>
 
@@ -47,6 +48,7 @@ export function HelpScreen({ onClose }: HelpScreenProps) {
         <Text>todo projects             List all projects</Text>
         <Text>todo logout               Sign out</Text>
         <Text>todo sync                 Sync with cloud</Text>
+        <Text>todo status               Show service status</Text>
       </Box>
 
       <Box flexDirection="column" marginBottom={1}>

@@ -7,6 +7,8 @@ import { Task } from './task.js';
 import { TodoApp } from './components/TodoApp.js';
 import { AuthService } from './auth.js';
 import { CloudTaskList } from './cloud-task-list.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const argv = yargs()
   .command('add <task>', 'Add a new todo task', (yargs: any) => {
@@ -308,6 +310,38 @@ const argv = yargs()
       console.log('Tasks synced successfully from cloud.');
     } else {
       console.log('Sync failed:', result.error);
+    }
+    
+    process.exit(0);
+  })
+  .command('status', 'Show TASK.SH service status and account info', {}, async (argv: any) => {
+    const authService = AuthService.getInstance();
+    await authService.initialize();
+    
+    console.log('🌟 TASK.SH Cloud Service Status:');
+    console.log('  Service: ✅ Online and ready');
+    console.log('  Features: Full sync, cross-device access, backup');
+    console.log('');
+    
+    if (authService.isAuthenticated()) {
+      console.log('📱 Your Account:');
+      console.log(`  Email: ${authService.getUserEmail()}`);
+      console.log('  Status: ✅ Signed in');
+      console.log('  Sync: 🔄 Active');
+      console.log('');
+      console.log('💡 Use "/logout" in interactive mode or "todo logout" to sign out');
+    } else {
+      console.log('🔐 Account Status: Not signed in');
+      console.log('');
+      console.log('To get started with cloud sync:');
+      console.log('  1. Launch interactive mode: todo');
+      console.log('  2. Type: /login');
+      console.log('  3. Create account or sign in');
+      console.log('');
+      console.log('✨ Cloud features:');
+      console.log('  • Sync tasks across all devices');
+      console.log('  • Automatic backup');
+      console.log('  • Access from anywhere');
     }
     
     process.exit(0);

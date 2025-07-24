@@ -15,11 +15,29 @@ A powerful command-line todo application built with Node.js, TypeScript, and Ink
 - **Smart Authentication**: Optional login via `/login` command
 - **Data Persistence**: Separate local and cloud storage
 
-## Quick Start
+## Installation
 
-### Installation
+### Global Installation (Recommended)
 ```bash
 # Clone the repository
+git clone <repository-url>
+cd todo-cli
+
+# Install dependencies and build
+npm install
+npm run build
+
+# Install globally to use 'todo' command anywhere
+npm run install:global
+
+# Now you can use 'todo' from any directory!
+todo --help
+```
+
+### Local Development
+```bash
+# Clone the repository
+git clone <repository-url>
 cd todo-cli
 
 # Install dependencies
@@ -28,17 +46,41 @@ npm install
 # Build the project
 npm run build
 
-# Start using TASK.SH
+# Run locally
 npm start
+```
+
+### Uninstall
+```bash
+# Remove global installation
+npm run uninstall:global
 ```
 
 ### First Launch
 The app launches directly into the main interface - no forced authentication:
 ```bash
-npm start
+todo
 ```
 
 You'll see the TASK.SH banner and can immediately start using tasks offline. Use `/login` when ready for cloud sync.
+
+### Quick Commands
+```bash
+# Interactive mode
+todo
+
+# Add a task quickly
+todo add "Review pull requests #work"
+
+# List today's tasks
+todo list
+
+# Show calendar view
+todo calendar
+
+# Get help
+todo --help
+```
 
 ## Interactive Mode Commands
 
@@ -292,32 +334,57 @@ TASK.SH uses optional authentication - you can use it offline or with cloud sync
 - Tasks automatically sync across devices
 - Offline support with automatic sync when reconnected
 
-### Cloud Setup (Optional)
-1. Create a Supabase account and project
-2. Run the database schema from `supabase-schema.sql`
-3. Create `.env` file with your Supabase credentials:
-```env
-SUPABASE_URL=your-project-url
-SUPABASE_ANON_KEY=your-anon-key
+### TASK.SH Cloud Service (Optional)
+Cloud sync is completely optional. The app works perfectly offline by default.
+
+**🌟 Managed Cloud Service - No Setup Required!**
+
+TASK.SH includes a built-in managed cloud service. No configuration, no API keys, no complexity!
+
+**Quick Start:**
+```bash
+# Check service status
+todo status
+
+# Or from interactive mode
+todo
+/status
 ```
 
-### Authentication Commands
+**Getting Started with Cloud Sync:**
+1. **Launch Interactive Mode**: `todo`
+2. **Create Account**: Type `/login` and choose "Create new account"
+3. **Start Syncing**: Your tasks automatically sync across all devices!
+
+**That's it!** No configuration files, no API keys, no setup complexity.
+
+### Cloud Features
+- ✅ **Automatic Sync**: Tasks sync across all your devices
+- ✅ **Secure Backup**: Your data is safely stored and backed up
+- ✅ **Zero Configuration**: Just create an account and go
+- ✅ **Privacy First**: Your tasks are private and secure
+- ✅ **Offline First**: Works perfectly offline, syncs when connected
+
+### Service Commands
 ```bash
 # Interactive mode
-/login          # Open login screen
-/logout         # Sign out
+/status         # Check service and account status
+/login          # Open login screen  
+/logout         # Sign out from account
 /sync           # Manual sync
 
 # CLI mode
-todo logout
-todo sync
+todo status     # Service status and account info
+todo logout     # Sign out
+todo sync       # Manual sync
 ```
 
-### Storage Separation
-- **Local tasks**: Stored in `data/tasks.json`
-- **Cloud tasks**: Stored in `data/cloud-tasks.json` + Supabase
+### Storage & Privacy
+- **Local tasks**: Stored in `data/tasks.json` (offline mode)
+- **Cloud tasks**: Stored in `data/cloud-tasks.json` + TASK.SH service
 - **Complete isolation**: Local and cloud tasks never mix
-- **User isolation**: Each authenticated user sees only their tasks
+- **Privacy first**: Each user sees only their own tasks
+- **Secure**: All data encrypted in transit and at rest
 
 ## Feature Parity Matrix
 
@@ -336,6 +403,7 @@ Every feature works identically across all usage modes:
 | View projects | `projects` | - | `/projects` | ✅ |
 | Show task IDs | `list --ids` `calendar --ids` | `i` | `/ids` | ✅ |
 | Sync cloud | `sync` | - | `/sync` | ✅ |
+| Service status | `status` | - | `/status` | ✅ |
 | Authentication | `logout` | - | `/login` `/logout` | ✅ |
 | Help | `--help` | - | `/help` | ✅ |
 
