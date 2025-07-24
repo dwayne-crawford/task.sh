@@ -134,17 +134,55 @@ export function TodoApp() {
         break;
       
       case '/add':
-        if (args.length === 0) {
-          // If no task provided, do nothing for now. User can type it in the slash command input.
-        } else {
-          // Check for --date flag
+        {
+          // Helper function to validate date format
+          const isValidDate = (dateStr: string): boolean => {
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(dateStr)) return false;
+            const date = new Date(dateStr);
+            return date instanceof Date && !isNaN(date.getTime()) && date.toISOString().split('T')[0] === dateStr;
+          };
+
+          // Helper function to reset command state
+          const resetCommandState = () => {
+            setSlashCommand('');
+            setCommandMenuVisible(false);
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+          };
+
+          if (args.length === 0) {
+            console.log('❌ Task description required');
+            console.log('💡 Usage: /add <description> [--date YYYY-MM-DD]');
+            console.log('💡 Example: /add "Buy groceries" --date 2025-01-15');
+            resetCommandState();
+            return;
+          }
+
+          // Parse command arguments
           let taskDescription = '';
           let taskDate = currentDate;
+          let hasDateFlag = false;
           
           const dateIndex = args.findIndex(arg => arg === '--date' || arg === '-d');
-          if (dateIndex !== -1 && dateIndex < args.length - 1) {
-            // Extract date and remove --date flag from args
-            taskDate = args[dateIndex + 1];
+          if (dateIndex !== -1) {
+            hasDateFlag = true;
+            if (dateIndex >= args.length - 1) {
+              console.log('❌ Date value missing after --date flag');
+              console.log('💡 Usage: /add <description> --date YYYY-MM-DD');
+              resetCommandState();
+              return;
+            }
+            
+            const providedDate = args[dateIndex + 1];
+            if (!isValidDate(providedDate)) {
+              console.log(`❌ Invalid date format: "${providedDate}"`);
+              console.log('💡 Date must be in YYYY-MM-DD format (e.g., 2025-01-15)');
+              resetCommandState();
+              return;
+            }
+            
+            taskDate = providedDate;
             const filteredArgs = [...args];
             filteredArgs.splice(dateIndex, 2); // Remove --date and the date value
             taskDescription = filteredArgs.join(' ');
@@ -152,50 +190,259 @@ export function TodoApp() {
             taskDescription = args.join(' ');
           }
           
-          if (taskDescription.trim()) {
-            taskList.addTask(taskDescription, taskDate);
-            loadTasks();
+          const trimmedDescription = taskDescription.trim();
+          if (!trimmedDescription) {
+            console.log('❌ Task description cannot be empty');
+            console.log('💡 Provide a meaningful task description');
+            resetCommandState();
+            return;
           }
+
+          // Add the task
+          try {
+            taskList.addTask(trimmedDescription, taskDate);
+            loadTasks();
+            
+            // Find and select the newly added task
+            const newTasks = taskList.getTasksByDate(taskDate);
+            const newTask = newTasks.find((t: any) => t.description === trimmedDescription);
+            if (newTask) {
+              const allVisibleItems = buildVisibleItems();
+              const newTaskIndex = allVisibleItems.findIndex(item => 
+                item.type === 'task' && item.task.id === newTask.id
+              );
+              if (newTaskIndex !== -1) {
+                setSelectedIndex(newTaskIndex);
+              }
+            }
+            
+            const dateInfo = hasDateFlag ? ` for ${taskDate}` : '';
+            console.log(`✅ Task added${dateInfo}: "${trimmedDescription}"`);
+          } catch (error) {
+            console.log('❌ Failed to add task. Please try again.');
+          }
+          
+          resetCommandState();
         }
-        setSlashCommand('');
-        setCommandMenuVisible(false);
-        setSubmenuVisible(false);
-        setActiveCommand(null);
         break;
       
       case '/delete':
-        if (args.length === 0) {
-          // Delete selected task
-          deleteTask();
-        } else {
-          // Delete by ID
-          const taskId = args[0];
-          if (taskList.deleteTask(taskId)) {
-            loadTasks();
+        {
+          // Helper function to reset command state
+          const resetCommandState = () => {
+            setSlashCommand('');
+            setCommandMenuVisible(false);
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+          };
+
+          // Helper function to adjust selection after deletion
+          const adjustSelectionAfterDelete = (deletedTaskIndex: number) => {
+            const remainingItems = buildVisibleItems().length - 1; // -1 for the deleted item
+            if (remainingItems === 0) {
+              setSelectedIndex(0);
+            } else if (selectedIndex >= remainingItems) {
+              setSelectedIndex(remainingItems - 1);
+            }
+            // Otherwise keep current selection index
+          };
+
+          if (args.length === 0) {
+            // Delete selected task
+            const visibleItems = buildVisibleItems();
+            
+            if (visibleItems.length === 0) {
+              console.log('❌ No tasks available to delete');
+              console.log('💡 Add some tasks first with: /add <description>');
+              resetCommandState();
+              return;
+            }
+            
+            if (selectedIndex >= visibleItems.length) {
+              console.log('❌ No task currently selected');
+              console.log('💡 Use arrow keys to select a task, then try /delete again');
+              resetCommandState();
+              return;
+            }
+
+            const item = visibleItems[selectedIndex];
+            if (item.type !== 'task') {
+              console.log('❌ Cannot delete subtask directly');
+              console.log('💡 Select the main task to delete it entirely, or use: /delete <task-id>');
+              resetCommandState();
+              return;
+            }
+
+            const taskToDelete = item.task;
+            const hasSubtasks = taskToDelete.hasSubtasks();
+            const subtaskCount = hasSubtasks ? taskToDelete.subtasks.length : 0;
+            
+            try {
+              if (taskList.deleteTask(taskToDelete.id)) {
+                adjustSelectionAfterDelete(selectedIndex);
+                loadTasks();
+                
+                let deleteMessage = `✅ Task deleted: "${taskToDelete.description}"`;
+                if (hasSubtasks) {
+                  deleteMessage += ` (including ${subtaskCount} subtask${subtaskCount > 1 ? 's' : ''})`;
+                }
+                console.log(deleteMessage);
+              } else {
+                console.log('❌ Failed to delete task. Please try again.');
+              }
+            } catch (error) {
+              console.log('❌ Error deleting task. Please try again.');
+            }
+          } else {
+            // Delete by ID
+            const taskId = args[0];
+            const taskToDelete = tasks.find(t => t.id === taskId);
+            
+            if (!taskToDelete) {
+              console.log(`❌ Task ID "${taskId}" not found`);
+              console.log('💡 Use /ids to show task IDs, or /delete without parameters to delete selected task');
+              resetCommandState();
+              return;
+            }
+
+            const hasSubtasks = taskToDelete.hasSubtasks();
+            const subtaskCount = hasSubtasks ? taskToDelete.subtasks.length : 0;
+            
+            // Show what will be deleted
+            console.log(`🗑️ Deleting: "${taskToDelete.description}"`);
+            if (hasSubtasks) {
+              console.log(`   ⚠️ This will also delete ${subtaskCount} subtask${subtaskCount > 1 ? 's' : ''}`);
+            }
+            
+            try {
+              if (taskList.deleteTask(taskId)) {
+                loadTasks();
+                
+                let deleteMessage = `✅ Task deleted: "${taskToDelete.description}"`;
+                if (hasSubtasks) {
+                  deleteMessage += ` (including ${subtaskCount} subtask${subtaskCount > 1 ? 's' : ''})`;
+                }
+                console.log(deleteMessage);
+              } else {
+                console.log('❌ Failed to delete task. Please try again.');
+              }
+            } catch (error) {
+              console.log('❌ Error deleting task. Please try again.');
+            }
           }
+          
+          resetCommandState();
         }
-        setSlashCommand('');
-        setCommandMenuVisible(false);
-        setSubmenuVisible(false);
-        setActiveCommand(null);
         break;
       
       case '/edit':
-        if (args.length === 0) {
-          // Edit selected task
-          startEdit();
-        } else if (args.length >= 2) {
+        {
+          // Helper function to reset command state
+          const resetCommandState = () => {
+            setSlashCommand('');
+            setCommandMenuVisible(false);
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+          };
+
+          // Helper function to validate description
+          const isValidDescription = (desc: string): boolean => {
+            const trimmed = desc.trim();
+            return trimmed.length > 0 && trimmed.length <= 500; // Reasonable max length
+          };
+
+          if (args.length === 0) {
+            // Edit selected task using interactive edit mode
+            const visibleItems = buildVisibleItems();
+            if (visibleItems.length === 0) {
+              console.log('❌ No tasks available to edit');
+              console.log('💡 Add some tasks first with: /add <description>');
+              resetCommandState();
+              return;
+            }
+            
+            if (selectedIndex >= visibleItems.length) {
+              console.log('❌ No task currently selected');
+              console.log('💡 Use arrow keys to select a task, then try /edit again');
+              resetCommandState();
+              return;
+            }
+
+            const item = visibleItems[selectedIndex];
+            if (item.type !== 'task') {
+              console.log('❌ Cannot edit subtask directly');
+              console.log('💡 Select the main task instead, or use: /edit <task-id> <new-description>');
+              resetCommandState();
+              return;
+            }
+
+            // Switch to interactive edit mode
+            console.log(`📝 Editing: "${item.task.description}"`);
+            startEdit();
+            resetCommandState();
+            return;
+          }
+
+          if (args.length === 1) {
+            const taskId = args[0];
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+              console.log('❌ New description required');
+              console.log(`💡 Usage: /edit ${taskId} <new description>`);
+              console.log(`💡 Current: "${task.description}"`);
+            } else {
+              console.log(`❌ Task ID "${taskId}" not found`);
+              console.log('💡 Use /ids to show task IDs, or /edit without parameters to edit selected task');
+            }
+            resetCommandState();
+            return;
+          }
+
           // Edit by ID and description
           const taskId = args[0];
-          const newDescription = args.slice(1).join(' ');
-          if (taskList.editTask(taskId, newDescription)) {
-            loadTasks();
+          const newDescription = args.slice(1).join(' ').trim();
+          
+          if (!isValidDescription(newDescription)) {
+            console.log('❌ Invalid task description');
+            if (newDescription.length === 0) {
+              console.log('💡 Description cannot be empty');
+            } else if (newDescription.length > 500) {
+              console.log('💡 Description too long (max 500 characters)');
+            }
+            resetCommandState();
+            return;
           }
+
+          const taskToEdit = tasks.find(t => t.id === taskId);
+          if (!taskToEdit) {
+            console.log(`❌ Task ID "${taskId}" not found`);
+            console.log('💡 Use /ids to show task IDs');
+            resetCommandState();
+            return;
+          }
+
+          const oldDescription = taskToEdit.description;
+          if (oldDescription === newDescription) {
+            console.log('ℹ️ No changes made - descriptions are identical');
+            resetCommandState();
+            return;
+          }
+
+          try {
+            if (taskList.editTask(taskId, newDescription)) {
+              loadTasks(true); // Preserve selection
+              console.log(`✅ Task updated successfully`);
+              console.log(`   Old: "${oldDescription}"`);
+              console.log(`   New: "${newDescription}"`);
+            } else {
+              console.log('❌ Failed to update task. Please try again.');
+            }
+          } catch (error) {
+            console.log('❌ Error updating task. Please try again.');
+          }
+          
+          resetCommandState();
         }
-        setSlashCommand('');
-        setCommandMenuVisible(false);
-        setSubmenuVisible(false);
-        setActiveCommand(null);
         break;
       
       case '/projects':
@@ -263,8 +510,7 @@ export function TodoApp() {
         break;
       
       default:
-        // Unknown command - could show error
-        console.log(`Unknown command: ${cmd}`);
+        // Unknown command - silently reset
         setSlashCommand('');
         setCommandMenuVisible(false);
         setSubmenuVisible(false);
@@ -277,22 +523,26 @@ export function TodoApp() {
     { command: '/login', description: 'Login to your account' },
     { command: '/logout', description: 'Logout from your account' },
     { command: '/add', description: 'Add a new task', params: [
-      { name: '<task description>', description: 'The task description', required: true, paramType: 'placeholder' },
-      { name: '--date', alias: '-d', description: 'Date for the task (YYYY-MM-DD)', type: 'string', paramType: 'flag' }
+      { name: '<description>', description: 'The task description (required)', required: true, paramType: 'placeholder' },
+      { name: '--date', alias: '-d', description: 'Date for the task (YYYY-MM-DD format)', type: 'string', paramType: 'flag' },
+      { name: 'Examples', description: '/add "Buy groceries" | /add "Meeting" --date 2025-01-15', paramType: 'example' }
     ]},
-    { command: '/delete', description: 'Delete a task', params: [
-      { name: '<id>', description: 'The ID of the task to delete', required: true, paramType: 'placeholder' }
+    { command: '/delete', description: 'Delete a task (or use /delete to delete selected)', params: [
+      { name: '<id>', description: 'Task ID (optional if task selected)', required: false, paramType: 'placeholder' },
+      { name: 'Examples', description: '/delete | /delete abc123 | Use /ids to show task IDs', paramType: 'example' }
     ]},
-    { command: '/edit', description: 'Edit a task', params: [
-      { name: '<id>', description: 'The ID of the task to edit', required: true, paramType: 'placeholder' },
-      { name: '<newDescription>', description: 'The new description for the task', required: true, paramType: 'placeholder' }
+    { command: '/edit', description: 'Edit a task (or use /edit to edit selected)', params: [
+      { name: '<id>', description: 'Task ID (optional if task selected)', required: false, paramType: 'placeholder' },
+      { name: '<new-description>', description: 'New task description', required: false, paramType: 'placeholder' },
+      { name: 'Examples', description: '/edit | /edit abc123 "Updated task" | Select task first for modal edit', paramType: 'example' }
     ]},
     { command: '/projects', description: 'List all projects' },
     { command: '/sync', description: 'Sync tasks with the cloud' },
     { command: '/calendar', description: 'Show calendar view', params: [
       { name: '[days]', description: 'Number of days to show (default: 7)', type: 'number', paramType: 'placeholder' },
       { name: '--project', alias: '-p', description: 'Filter by project name (without #)', type: 'string', paramType: 'flag' },
-      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' }
+      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' },
+      { name: 'Examples', description: '/calendar | /calendar 14 --project work --ids', paramType: 'example' }
     ]},
     { command: '/list', description: 'List all todo tasks', params: [
       { name: '[date]', description: 'Date to list tasks for (YYYY-MM-DD)', type: 'string', paramType: 'placeholder' },
@@ -300,7 +550,8 @@ export function TodoApp() {
       { name: '--project', alias: '-p', description: 'Filter by project name (without #)', type: 'string', paramType: 'flag' },
       { name: '--completed', description: 'Show only completed tasks', type: 'boolean', paramType: 'flag' },
       { name: '--pending', description: 'Show only pending (incomplete) tasks', type: 'boolean', paramType: 'flag' },
-      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' }
+      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' },
+      { name: 'Examples', description: '/list | /list 2025-01-15 | /list --all --project work', paramType: 'example' }
     ]},
     { command: '/ids', description: 'Toggle task IDs' },
     { command: '/status', description: 'Show service status' },
@@ -523,25 +774,54 @@ export function TodoApp() {
         if (submenuVisible) {
           const selectedParam = activeCommand?.params?.[submenuIndex];
           if (selectedParam) {
-            setSlashCommand(prev => `${prev}${selectedParam.paramType === 'placeholder' ? ' ' : ` ${selectedParam.name}`}`);
-            setSubmenuVisible(false);
-            setSubmenuIndex(0);
+            if (selectedParam.paramType === 'example') {
+              // Example entries are informational only, don't modify command
+              return;
+            } else if (selectedParam.paramType === 'placeholder') {
+              // For placeholder params, add a space to indicate where user should type
+              const currentCommand = slashCommand.trim();
+              if (!currentCommand.includes(' ')) {
+                setSlashCommand(prev => `${prev} `);
+              }
+              // Keep submenu visible for continued parameter selection
+            } else {
+              // For flag params, add them to the command
+              const flag = selectedParam.name;
+              const currentCommand = slashCommand.trim();
+              
+              // Check if flag already exists
+              if (!currentCommand.includes(flag)) {
+                if (selectedParam.type === 'boolean') {
+                  // Boolean flags don't need values
+                  setSlashCommand(prev => `${prev} ${flag}`);
+                } else {
+                  // String/number flags need values - add flag and space for value
+                  setSlashCommand(prev => `${prev} ${flag} `);
+                }
+              }
+              // Keep submenu visible for additional parameters
+            }
           }
         } else if (commandMenuVisible) {
           const filteredCommands = availableCommands.filter(cmd => cmd.command.startsWith(slashCommand));
           const selectedCommand = filteredCommands[commandMenuIndex];
           if (selectedCommand.params && selectedCommand.params.length > 0) {
+            setSlashCommand(selectedCommand.command);
             setActiveCommand(selectedCommand);
             setSubmenuVisible(true);
             setSubmenuIndex(0);
-            setCommandMenuVisible(false); // Hide main menu when submenu opens
+            setCommandMenuVisible(false);
           } else {
             setSlashCommand(selectedCommand.command);
             setCommandMenuVisible(false);
-            // Let TextInput's onSubmit handle the execution
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+            // Execute command immediately for parameterless commands
+            setTimeout(() => handleSlashCommand(selectedCommand.command), 0);
           }
         } else {
-          // Let TextInput's onSubmit handle the execution
+          // Execute the current command
+          handleSlashCommand(slashCommand);
         }
         return;
       }
@@ -569,19 +849,45 @@ export function TodoApp() {
           setCommandMenuVisible(false);
           setSubmenuVisible(false);
           setActiveCommand(null);
-        } else if (activeCommand && !newCommand.startsWith(activeCommand.command)) {
-          // If active command no longer matches, hide submenu and show main menu if applicable
-          setSubmenuVisible(false);
-          setActiveCommand(null);
-          const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
-          if (matchingCommands.length > 0) {
-            setCommandMenuVisible(true);
-            setCommandMenuIndex(0);
-          } else {
+        } else if (activeCommand) {
+          // Check if we're still typing the base command or its parameters
+          const baseCommand = activeCommand.command;
+          const commandPart = newCommand.split(' ')[0];
+          const hasSpace = newCommand.includes(' ');
+          
+          if (commandPart === baseCommand && hasSpace) {
+            // Still within the same command with space, keep submenu visible
+            setSubmenuVisible(true);
             setCommandMenuVisible(false);
+          } else if (commandPart === baseCommand && !hasSpace) {
+            // Just the command without space, hide submenu but keep active command
+            setSubmenuVisible(false);
+            setCommandMenuVisible(false);
+          } else if (baseCommand.startsWith(commandPart)) {
+            // Backspacing through the command itself
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+            const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+            if (matchingCommands.length > 0) {
+              setCommandMenuVisible(true);
+              setCommandMenuIndex(0);
+            } else {
+              setCommandMenuVisible(false);
+            }
+          } else {
+            // Command changed completely
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+            const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+            if (matchingCommands.length > 0) {
+              setCommandMenuVisible(true);
+              setCommandMenuIndex(0);
+            } else {
+              setCommandMenuVisible(false);
+            }
           }
-        } else if (!activeCommand) {
-          // If no active command, control main menu visibility
+        } else {
+          // No active command, control main menu visibility
           const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
           if (matchingCommands.length > 0) {
             setCommandMenuVisible(true);
@@ -596,15 +902,45 @@ export function TodoApp() {
         const newCommand = slashCommand + input;
         setSlashCommand(newCommand);
 
-        if (activeCommand) {
+        // Check if typing matches any complete command + space pattern
+        const commandPart = newCommand.split(' ')[0];
+        const hasSpace = newCommand.includes(' ');
+        const matchingCommand = availableCommands.find(cmd => cmd.command === commandPart);
+        
+        if (matchingCommand && hasSpace && matchingCommand.params && matchingCommand.params.length > 0) {
+          // Typing parameters for a command with params - show submenu
+          setActiveCommand(matchingCommand);
+          setSubmenuVisible(true);
+          setCommandMenuVisible(false);
+        } else if (activeCommand) {
           const currentCommandPart = newCommand.split(' ')[0];
-          if (currentCommandPart === activeCommand.command) {
+          if (currentCommandPart === activeCommand.command && hasSpace) {
+            // Keep submenu visible while typing parameters for the active command
             setSubmenuVisible(true);
-          } else {
+            setCommandMenuVisible(false);
+          } else if (activeCommand.command.startsWith(currentCommandPart)) {
+            // Still typing the base command
             setSubmenuVisible(false);
             setActiveCommand(null);
+            const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+            if (matchingCommands.length > 0) {
+              setCommandMenuVisible(true);
+              setCommandMenuIndex(0);
+            } else {
+              setCommandMenuVisible(false);
+            }
+          } else {
+            // Command changed completely, reset submenu and show main menu if applicable
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+            const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+            if (matchingCommands.length > 0) {
+              setCommandMenuVisible(true);
+              setCommandMenuIndex(0);
+            } else {
+              setCommandMenuVisible(false);
+            }
           }
-          setCommandMenuVisible(false); // Main menu should be hidden when submenu is active
         } else {
           // No active command with submenu, control main command menu visibility
           const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
@@ -854,9 +1190,10 @@ export function TodoApp() {
 
       {submenuVisible && activeCommand && (
         <Box justifyContent="center" marginTop={1}>
-          <Submenu params={activeCommand.params || []} selectedIndex={submenuIndex} />
+          <Submenu params={activeCommand.params || []} selectedIndex={submenuIndex} currentCommand={slashCommand} />
         </Box>
       )}
+      
 
       {/* Edit Modal */}
       {isEditing && editingTask && (

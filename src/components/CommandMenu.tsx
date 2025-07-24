@@ -3,7 +3,7 @@ import React from 'react';
 import { Box, Text } from 'ink';
 
 interface CommandMenuProps {
-  commands: { command: string, description: string }[];
+  commands: { command: string, description: string, params?: any[] }[];
   selectedIndex: number;
 }
 
