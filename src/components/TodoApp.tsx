@@ -13,6 +13,8 @@ import { HelpScreen } from './HelpScreen.js';
 import { ProjectsScreen } from './ProjectsScreen.js';
 import { CalendarScreen } from './CalendarScreen.js';
 import { ListScreen } from './ListScreen.js';
+import { CommandMenu } from './CommandMenu.js';
+import { Submenu } from './Submenu.js';
 
 export function TodoApp() {
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0, 10));
@@ -39,6 +41,11 @@ export function TodoApp() {
   const [showTaskIds, setShowTaskIds] = useState(false);
   const [slashCommand, setSlashCommand] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
+  const [commandMenuVisible, setCommandMenuVisible] = useState(false);
+  const [commandMenuIndex, setCommandMenuIndex] = useState(0);
+  const [submenuVisible, setSubmenuVisible] = useState(false);
+  const [submenuIndex, setSubmenuIndex] = useState(0);
+  const [activeCommand, setActiveCommand] = useState<{ command: string, description: string, params?: any[] } | null>(null);
 
   const loadTasks = (preserveSelection: boolean = false, customTaskList?: any) => {
     const currentTaskList = customTaskList || taskList;
@@ -104,20 +111,31 @@ export function TodoApp() {
     switch (cmd) {
       case '/help':
         setShowHelpScreen(true);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/login':
         setShowLoginScreen(true);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/logout':
         handleLogout();
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/add':
         if (args.length === 0) {
-          // No task provided, start interactive add
-          startAddingTask(false);
+          // If no task provided, do nothing for now. User can type it in the slash command input.
         } else {
           // Check for --date flag
           let taskDescription = '';
@@ -139,6 +157,10 @@ export function TodoApp() {
             loadTasks();
           }
         }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/delete':
@@ -152,6 +174,10 @@ export function TodoApp() {
             loadTasks();
           }
         }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/edit':
@@ -166,10 +192,18 @@ export function TodoApp() {
             loadTasks();
           }
         }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/projects':
         setShowProjectsScreen(true);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/sync':
@@ -185,18 +219,34 @@ export function TodoApp() {
         } else {
           console.log('Must be logged in to sync');
         }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/calendar':
         setShowCalendarScreen(true);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/list':
         setShowListScreen(true);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/ids':
         setShowTaskIds(!showTaskIds);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       case '/status':
@@ -206,13 +256,55 @@ export function TodoApp() {
         } else {
           console.log('🌟 TASK.SH: Online • Account: Not signed in (use /login)');
         }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
         break;
       
       default:
         // Unknown command - could show error
         console.log(`Unknown command: ${cmd}`);
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
     }
   };
+
+  const availableCommands = [
+    { command: '/help', description: 'Show help screen' },
+    { command: '/login', description: 'Login to your account' },
+    { command: '/logout', description: 'Logout from your account' },
+    { command: '/add', description: 'Add a new task', params: [
+      { name: '<task description>', description: 'The task description', required: true, paramType: 'placeholder' },
+      { name: '--date', alias: '-d', description: 'Date for the task (YYYY-MM-DD)', type: 'string', paramType: 'flag' }
+    ]},
+    { command: '/delete', description: 'Delete a task', params: [
+      { name: '<id>', description: 'The ID of the task to delete', required: true, paramType: 'placeholder' }
+    ]},
+    { command: '/edit', description: 'Edit a task', params: [
+      { name: '<id>', description: 'The ID of the task to edit', required: true, paramType: 'placeholder' },
+      { name: '<newDescription>', description: 'The new description for the task', required: true, paramType: 'placeholder' }
+    ]},
+    { command: '/projects', description: 'List all projects' },
+    { command: '/sync', description: 'Sync tasks with the cloud' },
+    { command: '/calendar', description: 'Show calendar view', params: [
+      { name: '[days]', description: 'Number of days to show (default: 7)', type: 'number', paramType: 'placeholder' },
+      { name: '--project', alias: '-p', description: 'Filter by project name (without #)', type: 'string', paramType: 'flag' },
+      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' }
+    ]},
+    { command: '/list', description: 'List all todo tasks', params: [
+      { name: '[date]', description: 'Date to list tasks for (YYYY-MM-DD)', type: 'string', paramType: 'placeholder' },
+      { name: '--all', alias: '-a', description: 'Show tasks from all dates', type: 'boolean', paramType: 'flag' },
+      { name: '--project', alias: '-p', description: 'Filter by project name (without #)', type: 'string', paramType: 'flag' },
+      { name: '--completed', description: 'Show only completed tasks', type: 'boolean', paramType: 'flag' },
+      { name: '--pending', description: 'Show only pending (incomplete) tasks', type: 'boolean', paramType: 'flag' },
+      { name: '--ids', description: 'Show task IDs', type: 'boolean', paramType: 'flag' }
+    ]},
+    { command: '/ids', description: 'Toggle task IDs' },
+    { command: '/status', description: 'Show service status' },
+  ];
 
   // Build flat list of all visible items (tasks + expanded subtasks)
   const buildVisibleItems = () => {
@@ -418,29 +510,121 @@ export function TodoApp() {
     // Handle slash command input
     if (slashCommand.length > 0) {
       if (key.escape) {
+        if (submenuVisible) {
+          setSubmenuVisible(false);
+          setSubmenuIndex(0);
+          return;
+        }
         setSlashCommand('');
+        setCommandMenuVisible(false);
         return;
       }
       if (key.return) {
-        // Process the command
-        handleSlashCommand(slashCommand);
-        setSlashCommand('');
+        if (submenuVisible) {
+          const selectedParam = activeCommand?.params?.[submenuIndex];
+          if (selectedParam) {
+            setSlashCommand(prev => `${prev}${selectedParam.paramType === 'placeholder' ? ' ' : ` ${selectedParam.name}`}`);
+            setSubmenuVisible(false);
+            setSubmenuIndex(0);
+          }
+        } else if (commandMenuVisible) {
+          const filteredCommands = availableCommands.filter(cmd => cmd.command.startsWith(slashCommand));
+          const selectedCommand = filteredCommands[commandMenuIndex];
+          if (selectedCommand.params && selectedCommand.params.length > 0) {
+            setActiveCommand(selectedCommand);
+            setSubmenuVisible(true);
+            setSubmenuIndex(0);
+            setCommandMenuVisible(false); // Hide main menu when submenu opens
+          } else {
+            setSlashCommand(selectedCommand.command);
+            setCommandMenuVisible(false);
+            // Let TextInput's onSubmit handle the execution
+          }
+        } else {
+          // Let TextInput's onSubmit handle the execution
+        }
+        return;
+      }
+      if (key.upArrow) {
+        if (submenuVisible) {
+          setSubmenuIndex(Math.max(0, submenuIndex - 1));
+        } else if (commandMenuVisible) {
+          setCommandMenuIndex(Math.max(0, commandMenuIndex - 1));
+        }
+        return;
+      }
+      if (key.downArrow) {
+        if (submenuVisible) {
+          setSubmenuIndex(Math.min((activeCommand?.params?.length || 0) - 1, submenuIndex + 1));
+        } else if (commandMenuVisible) {
+          setCommandMenuIndex(Math.min(availableCommands.filter(cmd => cmd.command.startsWith(slashCommand)).length - 1, commandMenuIndex + 1));
+        }
         return;
       }
       if (key.backspace || key.delete) {
-        setSlashCommand(slashCommand.slice(0, -1));
+        const newCommand = slashCommand.slice(0, -1);
+        setSlashCommand(newCommand);
+
+        if (newCommand.length === 0) {
+          setCommandMenuVisible(false);
+          setSubmenuVisible(false);
+          setActiveCommand(null);
+        } else if (activeCommand && !newCommand.startsWith(activeCommand.command)) {
+          // If active command no longer matches, hide submenu and show main menu if applicable
+          setSubmenuVisible(false);
+          setActiveCommand(null);
+          const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+          if (matchingCommands.length > 0) {
+            setCommandMenuVisible(true);
+            setCommandMenuIndex(0);
+          } else {
+            setCommandMenuVisible(false);
+          }
+        } else if (!activeCommand) {
+          // If no active command, control main menu visibility
+          const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+          if (matchingCommands.length > 0) {
+            setCommandMenuVisible(true);
+            setCommandMenuIndex(0);
+          } else {
+            setCommandMenuVisible(false);
+          }
+        }
         return;
       }
       if (input) {
-        setSlashCommand(slashCommand + input);
+        const newCommand = slashCommand + input;
+        setSlashCommand(newCommand);
+
+        if (activeCommand) {
+          const currentCommandPart = newCommand.split(' ')[0];
+          if (currentCommandPart === activeCommand.command) {
+            setSubmenuVisible(true);
+          } else {
+            setSubmenuVisible(false);
+            setActiveCommand(null);
+          }
+          setCommandMenuVisible(false); // Main menu should be hidden when submenu is active
+        } else {
+          // No active command with submenu, control main command menu visibility
+          const matchingCommands = availableCommands.filter(cmd => cmd.command.startsWith(newCommand));
+          if (matchingCommands.length > 0) {
+            setCommandMenuVisible(true);
+            setCommandMenuIndex(0);
+          } else {
+            setCommandMenuVisible(false);
+          }
+        }
         return;
       }
-      return;
-    }
+        return;
+      }
     
     // Start slash command if user types '/'
     if (input === '/' && !isEditing && !isAddingTask) {
       setSlashCommand('/');
+      setCommandMenuVisible(true);
+      setCommandMenuIndex(0);
       return;
     }
     
@@ -650,10 +834,27 @@ export function TodoApp() {
       </Box>
 
       {/* Slash Command Input */}
-      {slashCommand && (
+      {slashCommand.length > 0 && (
         <Box justifyContent="center" marginTop={1}>
-          <Text color="blue">Command: {slashCommand}</Text>
+          <Text color="blue">Command: </Text>
+          <TextInput
+            value={slashCommand}
+            onChange={setSlashCommand}
+            onSubmit={() => handleSlashCommand(slashCommand)}
+          />
           <Text color="gray"> (Return: Execute • Esc: Cancel)</Text>
+        </Box>
+      )}
+
+      {commandMenuVisible && !submenuVisible && (
+        <Box justifyContent="center" marginTop={1}>
+          <CommandMenu commands={availableCommands.filter(cmd => cmd.command.startsWith(slashCommand))} selectedIndex={commandMenuIndex} />
+        </Box>
+      )}
+
+      {submenuVisible && activeCommand && (
+        <Box justifyContent="center" marginTop={1}>
+          <Submenu params={activeCommand.params || []} selectedIndex={submenuIndex} />
         </Box>
       )}
 
