@@ -510,8 +510,7 @@ export function TodoApp() {
         break;
       
       default:
-        // Unknown command - could show error
-        console.log(`Unknown command: ${cmd}`);
+        // Unknown command - silently reset
         setSlashCommand('');
         setCommandMenuVisible(false);
         setSubmenuVisible(false);
@@ -806,18 +805,13 @@ export function TodoApp() {
         } else if (commandMenuVisible) {
           const filteredCommands = availableCommands.filter(cmd => cmd.command.startsWith(slashCommand));
           const selectedCommand = filteredCommands[commandMenuIndex];
-          console.log('🔍 Selected command:', selectedCommand.command, 'Has params:', selectedCommand.params?.length || 0);
-          
           if (selectedCommand.params && selectedCommand.params.length > 0) {
-            console.log('✅ Activating submenu for:', selectedCommand.command);
             setSlashCommand(selectedCommand.command);
             setActiveCommand(selectedCommand);
             setSubmenuVisible(true);
             setSubmenuIndex(0);
             setCommandMenuVisible(false);
-            console.log('🎯 Submenu should now be visible');
           } else {
-            console.log('⏩ Executing parameterless command:', selectedCommand.command);
             setSlashCommand(selectedCommand.command);
             setCommandMenuVisible(false);
             setSubmenuVisible(false);
@@ -918,7 +912,6 @@ export function TodoApp() {
           setActiveCommand(matchingCommand);
           setSubmenuVisible(true);
           setCommandMenuVisible(false);
-          console.log('🎯 Showing submenu for:', matchingCommand.command, 'while typing params');
         } else if (activeCommand) {
           const currentCommandPart = newCommand.split(' ')[0];
           if (currentCommandPart === activeCommand.command && hasSpace) {
@@ -1201,14 +1194,6 @@ export function TodoApp() {
         </Box>
       )}
       
-      {/* Debug info - remove in production */}
-      {slashCommand.length > 0 && (
-        <Box justifyContent="center" marginTop={1}>
-          <Text color="gray" dimColor>
-            Debug: submenuVisible={submenuVisible.toString()}, activeCommand={activeCommand?.command || 'null'}, commandMenuVisible={commandMenuVisible.toString()}
-          </Text>
-        </Box>
-      )}
 
       {/* Edit Modal */}
       {isEditing && editingTask && (
