@@ -1,0 +1,599 @@
+
+> todo-cli@1.0.0 start
+> node dist/cli.js
+
+(node:52738) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+
+                                   Loading...
+
+
+[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[GEncountered two children with the same key, `    at recursivelyTraversePassiveMountEffects (/Users/dcrawford/Development/App/tasksh/node_modules/react-reconciler/cjs/react-reconciler.development.js:11338:11)`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+
+                                   Loading...
+
+
+[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G
+  ERROR Raw mode is not supported on the current process.stdin, which Ink uses
+       as input stream by default.
+       Read about how to prevent this error on
+       https://github.com/vadimdemedes/ink/#israwmodesupported
+
+ - Read about how to prevent this error on
+   https://github.com/vadimdemedes/ink/#israwmodesupported
+ - handleSetRawMode (node_modules/ink/build/components/App.js:108:23)
+ -  (node_modules/ink/build/hooks/use-input.js:36:9)
+ -react-stack-bottom (node_modules/react-reconciler/cjs/react-reconciler.develo
+  frame             pment.js:15945:20)
+ -runWithFiberIn (node_modules/react-reconciler/cjs/react-reconciler.developmen
+  EV            t.js:1735:30)
+ -commitHookEffectLis (node_modules/react-reconciler/cjs/react-reconciler.devel
+  Mount              opment.js:9516:29)
+ -commitHookPassiveMoun (node_modules/react-reconciler/cjs/react-reconciler.dev
+  Effects              elopment.js:9639:11)
+ -commitPassiveMountO (node_modules/react-reconciler/cjs/react-reconciler.devel
+  Fiber              opment.js:11364:13)
+ -recursivelyTraversePassiv (node_modules/react-reconciler/cjs/react-reconciler
+  MountEffects             .development.js:11338:11)
+ -commitPassiveMountO (node_modules/react-reconciler/cjs/react-reconciler.devel
+  Fiber              opment.js:11479:11)
+ -recursivelyTraversePassiv (node_modules/react-reconciler/cjs/react-reconciler
+  MountEffects             .development.js:11338:11)
+
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13392:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _handleRequest (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:106:18)
+    at async _request (/Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/fetch.js:95:18)
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:1579:24
+    at async /Users/dcrawford/Development/App/tasksh/node_modules/@supabase/auth-js/dist/main/lib/helpers.js:216:36 {
+  [cause]: Error: getaddrinfo ENOTFOUND ufyswleqxkvhrzidmfwu.supabase.co
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'ufyswleqxkvhrzidmfwu.supabase.co'
+  }
+}
