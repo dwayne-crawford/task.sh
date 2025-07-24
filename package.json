@@ -6,15 +6,27 @@
   "scripts": {
     "start": "node dist/cli.js",
     "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "tsc && node dist/cli.js",
+    "install:global": "npm run build && npm install -g .",
+    "uninstall:global": "npm uninstall -g todo-cli",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
     "todo": "dist/cli.js"
   },
-  "keywords": [],
+  "keywords": ["todo", "cli", "task", "productivity", "terminal", "interactive"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A powerful command-line todo application with interactive UI, project organization, subtasks, and cloud sync",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/todo-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/todo-cli/issues"
+  },
+  "homepage": "https://github.com/your-username/todo-cli#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",
     "@types/react": "^19.1.8",

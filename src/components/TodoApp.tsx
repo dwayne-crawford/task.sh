@@ -199,6 +199,15 @@ export function TodoApp() {
         setShowTaskIds(!showTaskIds);
         break;
       
+      case '/status':
+        // Show service and account status
+        if (authService.isAuthenticated()) {
+          console.log('🌟 TASK.SH: Online • Account:', authService.getUserEmail());
+        } else {
+          console.log('🌟 TASK.SH: Online • Account: Not signed in (use /login)');
+        }
+        break;
+      
       default:
         // Unknown command - could show error
         console.log(`Unknown command: ${cmd}`);

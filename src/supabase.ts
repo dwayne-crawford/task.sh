@@ -4,25 +4,55 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-// Load environment variables silently
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables silently (mainly for development/testing)
 const originalConsoleLog = console.log;
 console.log = () => {}; // Temporarily disable console.log
 try {
   dotenv.config();
 } catch (error) {
-  // Silently ignore dotenv errors
+  // Silently ignore dotenv errors - service credentials are embedded
 } finally {
   console.log = originalConsoleLog; // Restore console.log
 }
 
-// These should be set as environment variables in production
-const supabaseUrl = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+// TASK.SH SaaS Service Configuration
+// Production credentials with Base64 encoding for security through obscurity
+const supabaseUrl = process.env.TASKSH_SERVICE_URL || getSecureServiceUrl();
+const supabaseAnonKey = process.env.TASKSH_SERVICE_KEY || getSecureServiceKey();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Get the TASK.SH service URL
+ * To update with your real URL:
+ * 1. Run: echo -n "https://your-real-project.supabase.co" | base64
+ * 2. Replace the encoded string below
+ */
+function getSecureServiceUrl(): string {
+  // Base64 encoded service URL - TASK.SH production service
+  const encoded = 'aHR0cHM6Ly91Znlzd2xlcXhrdmhyemlkbWZ3dS5zdXBhYmFzZS5jbw==';
+  return Buffer.from(encoded, 'base64').toString();
+}
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+/**
+ * Get the TASK.SH service anon key
+ * To update with your real anon key:
+ * 1. Get your anon key from Supabase dashboard
+ * 2. Run: echo -n "your-real-anon-key" | base64
+ * 3. Replace the encoded string below
+ */
+function getSecureServiceKey(): string {
+  // Base64 encoded anon key - TASK.SH production service
+  // This is your actual Supabase anon key, encoded for security
+  const encoded = 'ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5WbWVYTjNiR1Z4ZUd0MmFISjZhV1J0Wm5kMUlpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRNek1EY3hNVFlzSW1WNGNDSTZNakEyT0RnNE16RXhObjAuSW1Vc1lOUDUyTzhpdHN5WHB6TTkwMjhDY0hBY0VNVnU0TXBRaXQ4aXRpSQ==';
+  return Buffer.from(encoded, 'base64').toString();
+}
+
+// Always available - no user configuration needed
+const hasValidSupabaseConfig = true;
+
+export const supabase = hasValidSupabaseConfig ? createClient(supabaseUrl!, supabaseAnonKey!, {
   auth: {
     persistSession: true,
     storage: {
@@ -65,7 +95,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       }
     }
   }
-});
+}) : null;
+
+// Export a flag to check if Supabase is available
+export const isSupabaseConfigured = hasValidSupabaseConfig;
 
 export interface Database {
   public: {

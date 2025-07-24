@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase, isSupabaseConfigured } from './supabase.js';
 import { User } from '@supabase/supabase-js';
 
 export class AuthService {
@@ -6,6 +6,14 @@ export class AuthService {
   private currentUser: User | null = null;
 
   private constructor() {}
+
+  private checkSupabaseConfigured(): { success: boolean; error?: string } {
+    // Service is always available in SaaS model
+    if (!supabase) {
+      return { success: false, error: 'TASK.SH service temporarily unavailable. Please try again later.' };
+    }
+    return { success: true };
+  }
 
   static getInstance(): AuthService {
     if (!AuthService.instance) {
@@ -15,8 +23,14 @@ export class AuthService {
   }
 
   async initialize(): Promise<void> {
+    // Service should always be available
+    if (!supabase) {
+      this.currentUser = null;
+      return;
+    }
+
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase!.auth.getSession();
       if (error) {
         console.error('Error getting session:', error.message);
         return;
@@ -31,8 +45,13 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+    const configCheck = this.checkSupabaseConfigured();
+    if (!configCheck.success) {
+      return configCheck;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabase!.auth.signUp({
         email,
         password,
       });
@@ -53,8 +72,13 @@ export class AuthService {
   }
 
   async signInWithMagicLink(email: string): Promise<{ success: boolean; error?: string }> {
+    const configCheck = this.checkSupabaseConfigured();
+    if (!configCheck.success) {
+      return configCheck;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signInWithOtp({
+      const { data, error } = await supabase!.auth.signInWithOtp({
         email: email,
         options: {
           emailRedirectTo: 'http://localhost:1337'
@@ -72,8 +96,13 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+    const configCheck = this.checkSupabaseConfigured();
+    if (!configCheck.success) {
+      return configCheck;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase!.auth.signInWithPassword({
         email,
         password,
       });
@@ -94,8 +123,13 @@ export class AuthService {
   }
 
   async signOut(): Promise<{ success: boolean; error?: string }> {
+    const configCheck = this.checkSupabaseConfigured();
+    if (!configCheck.success) {
+      return configCheck;
+    }
+
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase!.auth.signOut();
       
       if (error) {
         return { success: false, error: error.message };
