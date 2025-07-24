@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["esnext"],
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

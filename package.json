@@ -1,0 +1,35 @@
+{
+  "name": "todo-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/cli.js",
+  "scripts": {
+    "start": "node dist/cli.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "todo": "dist/cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.52.1",
+    "@types/react": "^19.1.8",
+    "blessed": "^0.1.81",
+    "chalk": "^5.4.1",
+    "dotenv": "^17.2.0",
+    "ink": "^6.0.1",
+    "ink-text-input": "^6.0.0",
+    "react": "^19.1.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.25",
+    "@types/yargs": "^17.0.33",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
