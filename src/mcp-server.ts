@@ -25,8 +25,11 @@ interface AuthenticatedRequest extends Request {
 const apiKeyAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    console.error(`[MCP Auth] Incoming request to ${req.originalUrl}`);
+    console.error(`[MCP Auth] Authorization Header: ${authHeader ? authHeader.substring(0, 10) + '...' : 'None'}`);
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('[MCP Auth] No Bearer token found.');
       res.status(401).json({
         error: 'API key required',
         code: 'MCP_UNAUTHORIZED',
@@ -36,11 +39,14 @@ const apiKeyAuth = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     const apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
+    console.error(`[MCP Auth] Extracted API Key (masked): ${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 5)}`);
 
     // Validate API key using ApiKeyManager
     const validation = await ApiKeyManager.validateApiKey(apiKey);
+    console.error(`[MCP Auth] API Key Validation Result: ${JSON.stringify(validation)}`);
 
     if (!validation.valid || !validation.userId) {
+      console.error(`[MCP Auth] API Key validation failed: ${validation.error || 'Unknown reason'}`);
       res.status(401).json({
         error: 'Invalid API key',
         code: 'MCP_INVALID_KEY',
@@ -57,6 +63,7 @@ const apiKeyAuth = async (req: AuthenticatedRequest, res: Response, next: NextFu
       api_key: apiKey
     };
 
+    console.error(`[MCP Auth] API Key valid for user: ${validation.userId}`);
     next();
   } catch (error) {
     console.error('MCP Auth error:', error);

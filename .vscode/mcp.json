@@ -2,11 +2,9 @@
   "servers": {
     "tasksh": {
       "command": "node",
-      "args": [
-        "/Users/dwayne/Development/App/NodeJS/todo-cli/dist/mcp-remote-bridge.js"
-      ],
+      "args": ["dist/mcp-remote-bridge.js"],
       "env": {
-        "API_KEY": "sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo"
+        "API_KEY": "sk_user_YE3sAJXh2Fp_Y-aPPIoUbmG8_6_EFShhs48cHAL9vuY"
       }
     }
   },

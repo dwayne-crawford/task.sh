@@ -1,4 +1,16 @@
-#!/usr/bin/env node
+// Set the current working directory to the project root
+// This is crucial for global installations to find node_modules and other relative paths
+import path from 'path';
+import { fileURLToPath } from 'url';
+import process from 'process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Assuming the script is in dist/ and node_modules is in the parent directory
+process.chdir(path.join(__dirname, '..'));
+
+console.error("MCP Bridge: Script started. CWD: " + process.cwd());
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -9,7 +21,14 @@ import {
 
 // Your remote server details
 const REMOTE_SERVER = 'https://task-sh.onrender.com';
-const API_KEY = 'sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo';
+const API_KEY = process.env.API_KEY; // Read from environment variable
+
+// Ensure API_KEY is provided
+if (!API_KEY) {
+  console.error('Error: API_KEY environment variable is not set.');
+  console.error('Please set the API_KEY in your mcp.json or as an environment variable.');
+  process.exit(1);
+}
 
 // Create MCP server instance that bridges to remote HTTP server
 const server = new Server(
@@ -39,12 +58,23 @@ async function makeRequest(endpoint: string, method: string = 'GET', body?: any)
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  console.error(`[MCP Bridge] Making ${method} request to: ${url}`);
+  console.error(`[MCP Bridge] Request options:`, options);
+
+  try {
+    const response = await fetch(url, options);
+    console.error(`[MCP Bridge] Response status for ${url}: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[MCP Bridge] Response error text for ${url}: ${errorText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`[MCP Bridge] Error during fetch to ${url}:`, error);
+    throw error; // Re-throw to be caught by the tool handler
   }
-  
-  return await response.json();
 }
 
 // List available tools
@@ -189,9 +219,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Start the server
 async function main() {
+  console.error('MCP Bridge: Starting main function...');
   const transport = new StdioServerTransport();
+  console.error('MCP Bridge: Transport created.');
   await server.connect(transport);
-  console.error('Task.sh Remote MCP Bridge running');
+  console.error('MCP Bridge: Server connected to transport. Bridge running.');
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
