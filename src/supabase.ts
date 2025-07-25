@@ -23,6 +23,9 @@ try {
 const supabaseUrl = process.env.TASKSH_SERVICE_URL || getSecureServiceUrl();
 const supabaseAnonKey = process.env.TASKSH_SERVICE_KEY || getSecureServiceKey();
 
+console.error(`[Supabase Init] Using URL: ${supabaseUrl}`);
+console.error(`[Supabase Init] Using Anon Key (masked): ${supabaseAnonKey ? supabaseAnonKey.substring(0, 5) + '...' + supabaseAnonKey.substring(supabaseAnonKey.length - 5) : 'None'}`);
+
 /**
  * Get the TASK.SH service URL
  * To update with your real URL:
