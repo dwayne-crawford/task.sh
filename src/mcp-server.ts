@@ -86,7 +86,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // MCP Server Info endpoint
-app.get('/', (req: Request, res: Response) => {
+const handler = (req: Request, res: Response) => {
   res.json({
     name: 'Task.sh MCP Server',
     description: 'Model Context Protocol server for Task.sh - Provides task context and export tools for LLMs',
@@ -108,7 +108,6 @@ app.get('/', (req: Request, res: Response) => {
         'POST /tools/export/date-range',
         'POST /tools/export/bulk'
       ],
-      formats: ['json', 'csv', 'markdown', 'excel'],
       authentication: 'API Key (Bearer token)'
     },
     endpoints: {
@@ -118,7 +117,10 @@ app.get('/', (req: Request, res: Response) => {
       tools: '/tools/*'
     }
   });
-});
+};
+
+app.get('/', handler);
+app.post('/', handler);
 
 // Import routes and OpenAPI spec
 import { contextRoutes } from './mcp/context-routes.js';

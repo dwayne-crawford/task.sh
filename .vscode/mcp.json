@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "tasksh": {
+      "url": "https://task-sh.onrender.com/",
+      "headers": {
+        "Authorization": "Bearer sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo"
+      }
+    }
+  },
+  "inputs": []
+}
