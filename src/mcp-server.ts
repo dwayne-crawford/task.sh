@@ -7,7 +7,7 @@ import { ApiKeyManager } from './api-key-manager.js';
 
 // MCP Server for Task.sh - Provides context and export tools for LLMs
 const app: Express = express();
-const PORT = process.env.MCP_PORT || 3002;
+const PORT = process.env.PORT || process.env.MCP_PORT || 3002;
 
 // Middleware
 app.use(cors());

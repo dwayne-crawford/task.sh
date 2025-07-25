@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
 import { app, PORT } from './mcp-server.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const HOST = process.env.HOST || 'localhost';
 
 // Start the MCP server
 app.listen(PORT, () => {
   console.log(`🤖 Task.sh MCP Server running on port ${PORT}`);
   console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📖 Server info: http://localhost:${PORT}/`);
-  console.log(`🔧 Context endpoints: http://localhost:${PORT}/context/*`);
-  console.log(`⚡ Export tools: http://localhost:${PORT}/tools/*`);
+  console.log(`🔗 Health check: http://${HOST}:${PORT}/health`);
+  console.log(`📖 Server info: http://${HOST}:${PORT}/`);
+  console.log(`🔧 Context endpoints: http://${HOST}:${PORT}/context/*`);
+  console.log(`⚡ Export tools: http://${HOST}:${PORT}/tools/*`);
   console.log('');
   console.log('🚀 MCP Server ready for LLM integration!');
   console.log('');

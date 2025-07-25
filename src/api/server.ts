@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
 
 import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -10,8 +11,11 @@ import { taskRoutes } from './routes/tasks.js';
 import { authRoutes } from './routes/auth.js';
 import { exportRoutes } from './routes/export.js';
 
+dotenv.config();
+
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const PORT = process.env.PORT || process.env.API_PORT || 3001;
+const API_HOST = process.env.API_HOST || 'localhost';
 
 // Security middleware
 app.use(helmet());
@@ -129,8 +133,8 @@ app.use(errorHandler);
 const server = app.listen(PORT, () => {
   console.log(`🚀 TASK.SH API Server running on port ${PORT}`);
   console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📖 API docs: http://localhost:${PORT}/docs`);
+  console.log(`🔗 Health check: http://${API_HOST}:${PORT}/health`);
+  console.log(`📖 API docs: http://${API_HOST}:${PORT}/docs`);
 });
 
 // Graceful shutdown
