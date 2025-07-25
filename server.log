@@ -1,0 +1,85 @@
+
+> todo-cli@1.0.0 dev:api
+> tsc && node dist/api/server.js
+
+🚀 TASK.SH API Server running on port 3001
+📋 Environment: development
+🔗 Health check: http://localhost:3001/health
+📖 API docs: http://localhost:3001/docs
+::1 - - [25/Jul/2025:02:34:27 +0000] "GET /api HTTP/1.1" 200 1380 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:02:34:30 +0000] "GET /docs HTTP/1.1" 404 79 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+API Error: {
+  message: 'Bad escaped character in JSON at position 51 (line 1 column 52)',
+  stack: 'SyntaxError: Bad escaped character in JSON at position 51 (line 1 column 52)\n' +
+    '    at JSON.parse (<anonymous>)\n' +
+    '    at parse (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/body-parser/lib/types/json.js:77:19)\n' +
+    '    at /Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/body-parser/lib/read.js:123:18\n' +
+    '    at AsyncResource.runInAsyncScope (node:async_hooks:211:14)\n' +
+    '    at invokeCallback (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:238:16)\n' +
+    '    at done (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:227:7)\n' +
+    '    at IncomingMessage.onEnd (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:287:7)\n' +
+    '    at IncomingMessage.emit (node:events:518:28)\n' +
+    '    at endReadableNT (node:internal/streams/readable:1698:12)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)',
+  url: '/api/auth/login',
+  method: 'POST',
+  body: undefined,
+  timestamp: '2025-07-25T02:34:58.749Z'
+}
+::1 - - [25/Jul/2025:02:34:58 +0000] "POST /api/auth/login HTTP/1.1" 400 179 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:02:35:08 +0000] "POST /api/auth/login HTTP/1.1" 200 1138 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:02:36:43 +0000] "GET /api/tasks HTTP/1.1" 200 1129 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:13:33:57 +0000] "GET /health HTTP/1.1" 200 105 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:13:34:06 +0000] "GET /api HTTP/1.1" 200 1380 "-" "curl/8.7.1"
+API Error: {
+  message: 'Bad escaped character in JSON at position 54 (line 1 column 55)',
+  stack: 'SyntaxError: Bad escaped character in JSON at position 54 (line 1 column 55)\n' +
+    '    at JSON.parse (<anonymous>)\n' +
+    '    at parse (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/body-parser/lib/types/json.js:77:19)\n' +
+    '    at /Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/body-parser/lib/read.js:123:18\n' +
+    '    at AsyncResource.runInAsyncScope (node:async_hooks:211:14)\n' +
+    '    at invokeCallback (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:238:16)\n' +
+    '    at done (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:227:7)\n' +
+    '    at IncomingMessage.onEnd (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/raw-body/index.js:287:7)\n' +
+    '    at IncomingMessage.emit (node:events:518:28)\n' +
+    '    at endReadableNT (node:internal/streams/readable:1698:12)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)',
+  url: '/api/auth/login',
+  method: 'POST',
+  body: undefined,
+  timestamp: '2025-07-25T13:34:10.702Z'
+}
+::1 - - [25/Jul/2025:13:34:10 +0000] "POST /api/auth/login HTTP/1.1" 400 179 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:13:34:15 +0000] "POST /api/auth/login HTTP/1.1" 200 1138 "-" "curl/8.7.1"
+Login error: ValidationError: Validation failed
+    at file:///Users/dwayne/Development/App/NodeJS/todo-cli/dist/api/routes/auth.js:29:19
+    at Generator.next (<anonymous>)
+    at file:///Users/dwayne/Development/App/NodeJS/todo-cli/dist/api/routes/auth.js:7:71
+    at new Promise (<anonymous>)
+    at __awaiter (file:///Users/dwayne/Development/App/NodeJS/todo-cli/dist/api/routes/auth.js:3:12)
+    at file:///Users/dwayne/Development/App/NodeJS/todo-cli/dist/api/routes/auth.js:25:54
+    at Layer.handleRequest (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/router/lib/layer.js:152:17)
+    at next (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/router/lib/route.js:157:13)
+    at middleware (/Users/dwayne/Development/App/NodeJS/todo-cli/node_modules/express-validator/lib/middlewares/check.js:16:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  details: [
+    {
+      type: 'field',
+      value: undefined,
+      msg: 'Valid email is required',
+      path: 'email',
+      location: 'body'
+    }
+  ],
+  statusCode: 400,
+  code: 'VALIDATION_ERROR'
+}
+::1 - - [25/Jul/2025:13:38:19 +0000] "POST /api/auth/login HTTP/1.1" 500 100 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:13:38:32 +0000] "POST /api/auth/login HTTP/1.1" 200 1138 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:14:54:19 +0000] "GET /api/export/projects HTTP/1.1" 401 116 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:14:54:23 +0000] "POST /api/auth/login HTTP/1.1" 200 1138 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:14:54:40 +0000] "GET /api/export/projects HTTP/1.1" 200 303 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:14:54:40 +0000] "GET /api/export/tasks/incomplete HTTP/1.1" 404 102 "-" "curl/8.7.1"
+::1 - - [25/Jul/2025:14:54:55 +0000] "GET /api/export/projects HTTP/1.1" 200 303 "-" "curl/8.7.1"
+🛑 SIGTERM received, shutting down gracefully
+✅ Process terminated

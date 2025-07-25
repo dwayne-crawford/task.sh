@@ -5,9 +5,11 @@
   "main": "dist/cli.js",
   "scripts": {
     "start": "node dist/cli.js",
+    "start:api": "node dist/api/server.js",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "dev": "tsc && node dist/cli.js",
+    "dev:api": "tsc && node dist/api/server.js",
     "install:global": "npm run build && npm install -g .",
     "uninstall:global": "npm uninstall -g todo-cli",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +17,14 @@
   "bin": {
     "todo": "dist/cli.js"
   },
-  "keywords": ["todo", "cli", "task", "productivity", "terminal", "interactive"],
+  "keywords": [
+    "todo",
+    "cli",
+    "task",
+    "productivity",
+    "terminal",
+    "interactive"
+  ],
   "author": "",
   "license": "ISC",
   "description": "A powerful command-line todo application with interactive UI, project organization, subtasks, and cloud sync",
@@ -30,16 +39,33 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",
     "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "blessed": "^0.1.81",
     "chalk": "^5.4.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "express-validator": "^7.2.1",
+    "fumadocs-core": "^15.6.5",
+    "fumadocs-openapi": "^9.1.4",
+    "fumadocs-ui": "^15.6.5",
+    "helmet": "^8.1.0",
     "ink": "^6.0.1",
     "ink-text-input": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "next": "^15.4.4",
     "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.25",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
     "@types/yargs": "^17.0.33",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"

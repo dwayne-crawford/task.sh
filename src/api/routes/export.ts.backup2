@@ -1,0 +1,1155 @@
+import { Router, Response } from 'express';
+import { body, query, validationResult } from 'express-validator';
+import { AuthenticatedRequest } from '../middleware/auth.js';
+import { ValidationError, NotFoundError } from '../middleware/errorHandler.js';
+import { 
+  ApiResponse, 
+  ExportRequest, 
+  ExportJob, 
+  ExportQuery,
+  ProjectExportResponse,
+  StatusExportResponse,
+  DateRangeExportResponse,
+  BulkExportRequest,
+  BulkExportResponse,
+  ApiTask,
+  ApiProject
+} from '../types/api.js';
+import { CloudTaskList } from '../../cloud-task-list.js';
+import { TaskList } from '../../task-list.js';
+import { convertExportData, setResponseHeaders } from '../utils/formatters.js';
+
+const router = Router();
+
+// Helper to get task list for user
+const getTaskListForUser = (userId: string): TaskList => {
+  return new CloudTaskList();
+};
+
+// Helper to convert internal task to API task
+const toApiTask = (task: any): ApiTask => ({
+  id: task.id,
+  description: task.description,
+  completed: task.completed,
+  date: task.date,
+  project: task.project,
+  created_at: task.created_at || new Date().toISOString(),
+  updated_at: task.updated_at || new Date().toISOString(),
+  subtasks: task.subtasks || [],
+  is_expanded: task.isExpanded || false
+});
+
+// Validation middleware
+const exportValidation = [
+  body('format').isIn(['json', 'markdown', 'excel']).withMessage('Format must be json, markdown, or excel')
+];
+
+const projectExportValidation = [
+  query('status').optional().isIn(['complete', 'incomplete', 'all']).withMessage('Status must be complete, incomplete, or all'),
+  query('format').optional().isIn(['json', 'csv', 'excel', 'markdown', 'pdf']).withMessage('Format must be json, csv, excel, markdown, or pdf'),
+  query('include').optional().isString().withMessage('Include must be a comma-separated string'),
+  query('date_from').optional().isISO8601().withMessage('Date from must be in YYYY-MM-DD format'),
+  query('date_to').optional().isISO8601().withMessage('Date to must be in YYYY-MM-DD format')
+];
+
+const dateRangeValidation = [
+  query('date_from').isISO8601().withMessage('Date from is required and must be in YYYY-MM-DD format'),
+  query('date_to').isISO8601().withMessage('Date to is required and must be in YYYY-MM-DD format'),
+  query('status').optional().isIn(['complete', 'incomplete', 'all']).withMessage('Status must be complete, incomplete, or all'),
+  query('project').optional().isString().withMessage('Project must be a string'),
+  query('format').optional().isIn(['json', 'csv', 'excel', 'markdown']).withMessage('Format must be json, csv, excel, or markdown')
+];
+
+const statusExportValidation = [
+  query('format').optional().isIn(['json', 'csv', 'excel', 'markdown']).withMessage('Format must be json, csv, excel, or markdown')
+];
+
+const bulkExportValidation = [
+  body('projects').optional().isArray().withMessage('Projects must be an array'),
+  body('date_ranges').optional().isArray().withMessage('Date ranges must be an array'),
+  body('status_filters').optional().isArray().withMessage('Status filters must be an array'),
+  body('format').optional().isIn(['json', 'csv', 'excel', 'markdown']).withMessage('Format must be json, csv, excel, or markdown'),
+  body('compress').optional().isBoolean().withMessage('Compress must be a boolean')
+];
+
+// Helper functions
+const calculateBusinessDays = (startDate: string, endDate: string): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  let businessDays = 0;
+  
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday (0) or Saturday (6)
+      businessDays++;
+    }
+  }
+  
+  return businessDays;
+};
+
+const calculateDateDifference = (startDate: string, endDate: string): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+};
+
+// POST /api/export - Initiate export
+router.post('/', exportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError('Validation failed', errors.array());
+    }
+
+    const exportRequest: ExportRequest = req.body;
+    
+    // Generate export job ID
+    const exportId = `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // For now, we'll return a mock response
+    // In Phase 3, this will actually queue the export job
+    const exportJob: ExportJob = {
+      id: exportId,
+      status: 'pending',
+      format: exportRequest.format,
+      created_at: new Date().toISOString()
+    };
+
+    // TODO: Queue actual export processing
+    console.log(`Export job ${exportId} queued for user ${req.user!.id}:`, exportRequest);
+
+    res.status(202).json({
+      success: true,
+      data: exportJob,
+      timestamp: new Date().toISOString()
+    } as ApiResponse<ExportJob>);
+
+  } catch (error) {
+    console.error('Export initiation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to initiate export',
+      code: 'EXPORT_INITIATION_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/date - Export tasks within date range (must come before /:id)
+router.get('/date', dateRangeValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError('Validation failed', errors.array());
+    }
+
+    const query: ExportQuery = {
+      date_from: req.query.date_from as string,
+      date_to: req.query.date_to as string,
+      status: (req.query.status as any) || 'all',
+      project: req.query.project as string,
+      format: (req.query.format as any) || 'json'
+    };
+
+    const taskList = getTaskListForUser(req.user!.id);
+    let filteredTasks = taskList.tasks.filter((task: any) => 
+      task.date >= query.date_from! && task.date <= query.date_to!
+    );
+
+    // Apply project filter
+    if (query.project) {
+      filteredTasks = filteredTasks.filter((task: any) => task.project === query.project);
+    }
+
+    // Apply status filter
+    if (query.status === 'complete') {
+      filteredTasks = filteredTasks.filter((task: any) => task.completed === true);
+    } else if (query.status === 'incomplete') {
+      filteredTasks = filteredTasks.filter((task: any) => task.completed === false);
+    }
+
+    // Calculate daily breakdown
+    const dailyBreakdown: { [date: string]: { total_tasks: number; completed_tasks: number; pending_tasks: number; completion_rate: number } } = {};
+    
+    for (let d = new Date(query.date_from!); d <= new Date(query.date_to!); d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      
+      const dayTasks = filteredTasks.filter((task: any) => task.date === dateStr);
+      const completedCount = dayTasks.filter((task: any) => task.completed).length;
+      
+      dailyBreakdown[dateStr] = {
+        total_tasks: dayTasks.length,
+        completed_tasks: completedCount,
+        pending_tasks: dayTasks.length - completedCount,
+        completion_rate: dayTasks.length > 0 ? completedCount / dayTasks.length : 0
+      };
+    }
+
+    // Find most/least productive days
+    const productivityEntries = Object.entries(dailyBreakdown)
+      .filter(([_, data]) => data.total_tasks > 0)
+      .sort(([, a], [, b]) => b.total_tasks - a.total_tasks);
+    
+    const mostProductiveDay = productivityEntries.length > 0 ? productivityEntries[0][0] : query.date_from!;
+    const leastProductiveDay = productivityEntries.length > 0 ? productivityEntries[productivityEntries.length - 1][0] : query.date_from!;
+
+    const totalDays = calculateDateDifference(query.date_from!, query.date_to!);
+    const businessDays = calculateBusinessDays(query.date_from!, query.date_to!);
+    const completedTasks = filteredTasks.filter((task: any) => task.completed).length;
+
+    const exportResponse: DateRangeExportResponse = {
+      export_metadata: {
+        export_type: 'date_range',
+        date_from: query.date_from!,
+        date_to: query.date_to!,
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email,
+        filters_applied: query,
+        version: '1.0'
+      },
+      date_range: {
+        start_date: query.date_from!,
+        end_date: query.date_to!,
+        total_days: totalDays,
+        business_days: businessDays
+      },
+      tasks: filteredTasks.map(toApiTask),
+      daily_breakdown: dailyBreakdown,
+      statistics: {
+        total_tasks: filteredTasks.length,
+        completed_tasks: completedTasks,
+        pending_tasks: filteredTasks.length - completedTasks,
+        completion_rate: filteredTasks.length > 0 ? completedTasks / filteredTasks.length : 0,
+        most_productive_day: mostProductiveDay,
+        least_productive_day: leastProductiveDay,
+        average_tasks_per_day: filteredTasks.length / totalDays
+      }
+    };
+
+    // Handle different formats
+    const format = query.format || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, `date-${query.date_from}-to-${query.date_to}-export`);
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="date-${query.date_from}-to-${query.date_to}-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="date-${query.date_from}-to-${query.date_to}-export.json"`);
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<DateRangeExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Date range export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export date range',
+      code: 'DATE_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/projects - List all projects (must come before /:id route)
+router.get('/projects', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const allTasks = taskList.tasks;
+    
+    // Group tasks by project
+    const projectMap = new Map<string, { tasks: any[], completed: number }>();
+    
+    for (const task of allTasks) {
+      const projectName = task.project || 'No Project';
+      
+      if (!projectMap.has(projectName)) {
+        projectMap.set(projectName, { tasks: [], completed: 0 });
+      }
+      
+      const project = projectMap.get(projectName)!;
+      project.tasks.push(task);
+      if (task.completed) {
+        project.completed++;
+      }
+    }
+    
+    // Convert to API format
+    const projects: ApiProject[] = Array.from(projectMap.entries()).map(([name, data]) => ({
+      name: name === 'No Project' ? null : name,
+      task_count: data.tasks.length,
+      completed_count: data.completed,
+      pending_count: data.tasks.length - data.completed,
+      completion_rate: data.tasks.length > 0 ? data.completed / data.tasks.length : 0,
+      created_at: Math.min(...data.tasks.map((t: any) => new Date(t.date).getTime())).toString(),
+      last_activity: Math.max(...data.tasks.map((t: any) => new Date(t.date).getTime())).toString()
+    })).filter(p => p.name !== null);
+
+    res.json({
+      success: true,
+      data: projects,
+      timestamp: new Date().toISOString()
+    } as ApiResponse<ApiProject[]>);
+
+  } catch (error) {
+    console.error('List projects for export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve projects for export',
+      code: 'EXPORT_PROJECTS_LIST_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/projects/:project - Export specific project with status filtering
+router.get('/projects/:project', projectExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError('Validation failed', errors.array());
+    }
+
+    const { project: projectName } = req.params;
+    const query: ExportQuery = {
+      status: (req.query.status as any) || 'all',
+      format: (req.query.format as any) || 'json',
+      include: req.query.include as string,
+      date_from: req.query.date_from as string,
+      date_to: req.query.date_to as string
+    };
+
+    const taskList = getTaskListForUser(req.user!.id);
+    let projectTasks = taskList.tasks.filter((task: any) => task.project === projectName);
+
+    if (projectTasks.length === 0) {
+      throw new NotFoundError(`Project '${projectName}' not found or has no tasks`);
+    }
+
+    // Apply status filtering
+    if (query.status === 'complete') {
+      projectTasks = projectTasks.filter((task: any) => task.completed === true);
+    } else if (query.status === 'incomplete') {
+      projectTasks = projectTasks.filter((task: any) => task.completed === false);
+    }
+
+    // Apply date filtering
+    if (query.date_from && query.date_to) {
+      projectTasks = projectTasks.filter((task: any) => 
+        task.date >= query.date_from! && task.date <= query.date_to!
+      );
+    }
+
+    // Calculate project statistics
+    const allProjectTasks = taskList.tasks.filter((task: any) => task.project === projectName);
+    const completedCount = allProjectTasks.filter((task: any) => task.completed).length;
+
+    const exportResponse: ProjectExportResponse = {
+      export_metadata: {
+        export_type: 'project',
+        project_name: projectName,
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email,
+        filters_applied: query,
+        version: '1.0'
+      },
+      project: {
+        name: projectName,
+        created_at: Math.min(...allProjectTasks.map((t: any) => new Date(t.date).getTime())).toString(),
+        task_count: allProjectTasks.length,
+        completed_count: completedCount,
+        completion_rate: allProjectTasks.length > 0 ? completedCount / allProjectTasks.length : 0
+      },
+      tasks: projectTasks.map(toApiTask),
+      statistics: {
+        total_tasks: projectTasks.length,
+        completed_tasks: projectTasks.filter((t: any) => t.completed).length,
+        pending_tasks: projectTasks.filter((t: any) => !t.completed).length,
+        completion_rate: projectTasks.length > 0 ? 
+          projectTasks.filter((t: any) => t.completed).length / projectTasks.length : 0
+      }
+    };
+
+    // Handle different formats
+    const format = query.format || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, `${projectName}-export`);
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="${projectName}-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${projectName}-export.json"`);
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<ProjectExportResponse>);
+    }
+
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({
+        success: false,
+        error: error.message,
+        code: 'PROJECT_NOT_FOUND',
+        timestamp: new Date().toISOString()
+      } as ApiResponse);
+    } else {
+      console.error('Project export error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to export project',
+        code: 'PROJECT_EXPORT_ERROR',
+        timestamp: new Date().toISOString()
+      } as ApiResponse);
+    }
+  }
+});
+
+// GET /api/export/tasks/complete - Export all completed tasks
+router.get('/tasks/complete', statusExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const completedTasks = taskList.tasks.filter((task: any) => task.completed === true);
+
+    // Group by project for summary
+    const projectsSummary: { [key: string]: { task_count: number; completion_rate: number } } = {};
+    const allTasksByProject = new Map<string, { total: number; completed: number }>();
+
+    // Calculate project summaries
+    for (const task of taskList.tasks) {
+      const projectName = task.project || 'No Project';
+      if (!allTasksByProject.has(projectName)) {
+        allTasksByProject.set(projectName, { total: 0, completed: 0 });
+      }
+      const project = allTasksByProject.get(projectName)!;
+      project.total++;
+      if (task.completed) project.completed++;
+    }
+
+    allTasksByProject.forEach((stats, projectName) => {
+      if (projectName !== 'No Project') {
+        projectsSummary[projectName] = {
+          task_count: stats.completed,
+          completion_rate: stats.completed / stats.total
+        };
+      }
+    });
+
+    const exportResponse: StatusExportResponse = {
+      export_metadata: {
+        export_type: 'status_filter',
+        status_filter: 'complete',
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email
+      },
+      tasks: completedTasks.map(toApiTask),
+      projects_summary: projectsSummary,
+      statistics: {
+        total_tasks: completedTasks.length,
+        projects_affected: Object.keys(projectsSummary).length,
+        completion_distribution: Object.fromEntries(
+          Object.entries(projectsSummary).map(([project, data]) => [project, data.task_count])
+        )
+      }
+    };
+
+    // Handle different formats  
+    const format = (req.query.format as string) || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, 'completed-tasks-export');
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="completed-tasks-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="completed-tasks-export.json"');
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<StatusExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Complete tasks export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export completed tasks',
+      code: 'COMPLETE_TASKS_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/tasks/incomplete - Export all incomplete tasks
+router.get('/tasks/incomplete', statusExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const incompleteTasks = taskList.tasks.filter((task: any) => task.completed === false);
+
+    // Group by project for summary
+    const projectsSummary: { [key: string]: { task_count: number; completion_rate: number } } = {};
+    const allTasksByProject = new Map<string, { total: number; completed: number }>();
+
+    // Calculate project summaries
+    for (const task of taskList.tasks) {
+      const projectName = task.project || 'No Project';
+      if (!allTasksByProject.has(projectName)) {
+        allTasksByProject.set(projectName, { total: 0, completed: 0 });
+      }
+      const project = allTasksByProject.get(projectName)!;
+      project.total++;
+      if (task.completed) project.completed++;
+    }
+
+    allTasksByProject.forEach((stats, projectName) => {
+      if (projectName !== 'No Project' && (stats.total - stats.completed > 0)) {
+        projectsSummary[projectName] = {
+          task_count: stats.total - stats.completed,
+          completion_rate: stats.completed / stats.total
+        };
+      }
+    });
+
+    const exportResponse: StatusExportResponse = {
+      export_metadata: {
+        export_type: 'status_filter',
+        status_filter: 'incomplete',
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email
+      },
+      tasks: incompleteTasks.map(toApiTask),
+      projects_summary: projectsSummary,
+      statistics: {
+        total_tasks: incompleteTasks.length,
+        projects_affected: Object.keys(projectsSummary).length,
+        completion_distribution: Object.fromEntries(
+          Object.entries(projectsSummary).map(([project, data]) => [project, data.task_count])
+        )
+      }
+    };
+
+    // Handle different formats
+    const format = (req.query.format as string) || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, 'incomplete-tasks-export');
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="incomplete-tasks-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="incomplete-tasks-export.json"');
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<StatusExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Incomplete tasks export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export incomplete tasks',
+      code: 'INCOMPLETE_TASKS_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/:id - Check export status
+router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // TODO: Implement actual export status checking
+    // For now, return a mock completed export
+    const exportJob: ExportJob = {
+      id,
+      status: 'completed',
+      format: 'json', // This would come from the database
+      created_at: new Date(Date.now() - 60000).toISOString(), // 1 minute ago
+      completed_at: new Date().toISOString(),
+      download_url: `/api/export/${id}/download`,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+      file_size: 1024 // Mock file size
+    };
+
+    res.json({
+      success: true,
+      data: exportJob,
+      timestamp: new Date().toISOString()
+    } as ApiResponse<ExportJob>);
+
+  } catch (error) {
+    console.error('Export status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get export status',
+      code: 'EXPORT_STATUS_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/:id/download - Download export file
+router.get('/:id/download', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // TODO: Implement actual file download
+    // For now, return a simple JSON response
+    const mockExportData = {
+      export_metadata: {
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email,
+        version: '1.0',
+        total_tasks: 0
+      },
+      tasks: [],
+      projects: [],
+      statistics: {
+        total_tasks: 0,
+        completed_tasks: 0,
+        pending_tasks: 0,
+        completion_rate: 0
+      }
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="tasksh-export-${id}.json"`);
+    res.json(mockExportData);
+
+  } catch (error) {
+    console.error('Export download error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to download export',
+      code: 'EXPORT_DOWNLOAD_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/projects - List all projects (must come before /:project route)
+router.get('/projects', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const allTasks = taskList.tasks;
+    
+    // Group tasks by project
+    const projectMap = new Map<string, { tasks: any[], completed: number }>();
+    
+    for (const task of allTasks) {
+      const projectName = task.project || 'No Project';
+      
+      if (!projectMap.has(projectName)) {
+        projectMap.set(projectName, { tasks: [], completed: 0 });
+      }
+      
+      const project = projectMap.get(projectName)!;
+      project.tasks.push(task);
+      if (task.completed) {
+        project.completed++;
+      }
+    }
+    
+    // Convert to API format
+    const projects: ApiProject[] = Array.from(projectMap.entries()).map(([name, data]) => ({
+      name: name === 'No Project' ? null : name,
+      task_count: data.tasks.length,
+      completed_count: data.completed,
+      pending_count: data.tasks.length - data.completed,
+      completion_rate: data.tasks.length > 0 ? data.completed / data.tasks.length : 0,
+      created_at: Math.min(...data.tasks.map((t: any) => new Date(t.date).getTime())).toString(),
+      last_activity: Math.max(...data.tasks.map((t: any) => new Date(t.date).getTime())).toString()
+    })).filter(p => p.name !== null);
+
+    res.json({
+      success: true,
+      data: projects,
+      timestamp: new Date().toISOString()
+    } as ApiResponse<ApiProject[]>);
+
+  } catch (error) {
+    console.error('List projects for export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve projects for export',
+      code: 'EXPORT_PROJECTS_LIST_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/projects/:project - Export specific project with status filtering
+router.get('/projects/:project', projectExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError('Validation failed', errors.array());
+    }
+
+    const { project: projectName } = req.params;
+    const query: ExportQuery = {
+      status: (req.query.status as any) || 'all',
+      format: (req.query.format as any) || 'json',
+      include: req.query.include as string,
+      date_from: req.query.date_from as string,
+      date_to: req.query.date_to as string
+    };
+
+    const taskList = getTaskListForUser(req.user!.id);
+    let projectTasks = taskList.tasks.filter((task: any) => task.project === projectName);
+
+    if (projectTasks.length === 0) {
+      throw new NotFoundError(`Project '${projectName}' not found or has no tasks`);
+    }
+
+    // Apply status filtering
+    if (query.status === 'complete') {
+      projectTasks = projectTasks.filter((task: any) => task.completed === true);
+    } else if (query.status === 'incomplete') {
+      projectTasks = projectTasks.filter((task: any) => task.completed === false);
+    }
+
+    // Apply date filtering
+    if (query.date_from && query.date_to) {
+      projectTasks = projectTasks.filter((task: any) => 
+        task.date >= query.date_from! && task.date <= query.date_to!
+      );
+    }
+
+    // Calculate project statistics
+    const allProjectTasks = taskList.tasks.filter((task: any) => task.project === projectName);
+    const completedCount = allProjectTasks.filter((task: any) => task.completed).length;
+
+    const exportResponse: ProjectExportResponse = {
+      export_metadata: {
+        export_type: 'project',
+        project_name: projectName,
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email,
+        filters_applied: query,
+        version: '1.0'
+      },
+      project: {
+        name: projectName,
+        created_at: Math.min(...allProjectTasks.map((t: any) => new Date(t.date).getTime())).toString(),
+        task_count: allProjectTasks.length,
+        completed_count: completedCount,
+        completion_rate: allProjectTasks.length > 0 ? completedCount / allProjectTasks.length : 0
+      },
+      tasks: projectTasks.map(toApiTask),
+      statistics: {
+        total_tasks: projectTasks.length,
+        completed_tasks: projectTasks.filter((t: any) => t.completed).length,
+        pending_tasks: projectTasks.filter((t: any) => !t.completed).length,
+        completion_rate: projectTasks.length > 0 ? 
+          projectTasks.filter((t: any) => t.completed).length / projectTasks.length : 0
+      }
+    };
+
+    // Handle different formats
+    const format = query.format || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, `${projectName}-export`);
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="${projectName}-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${projectName}-export.json"`);
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<ProjectExportResponse>);
+    }
+
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({
+        success: false,
+        error: error.message,
+        code: 'PROJECT_NOT_FOUND',
+        timestamp: new Date().toISOString()
+      } as ApiResponse);
+    } else {
+      console.error('Project export error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to export project',
+        code: 'PROJECT_EXPORT_ERROR',
+        timestamp: new Date().toISOString()
+      } as ApiResponse);
+    }
+  }
+});
+
+// GET /api/export/tasks/complete - Export all completed tasks
+router.get('/tasks/complete', statusExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const completedTasks = taskList.tasks.filter((task: any) => task.completed === true);
+
+    // Group by project for summary
+    const projectsSummary: { [key: string]: { task_count: number; completion_rate: number } } = {};
+    const allTasksByProject = new Map<string, { total: number; completed: number }>();
+
+    // Calculate project summaries
+    for (const task of taskList.tasks) {
+      const projectName = task.project || 'No Project';
+      if (!allTasksByProject.has(projectName)) {
+        allTasksByProject.set(projectName, { total: 0, completed: 0 });
+      }
+      const project = allTasksByProject.get(projectName)!;
+      project.total++;
+      if (task.completed) project.completed++;
+    }
+
+    allTasksByProject.forEach((stats, projectName) => {
+      if (projectName !== 'No Project') {
+        projectsSummary[projectName] = {
+          task_count: stats.completed,
+          completion_rate: stats.completed / stats.total
+        };
+      }
+    });
+
+    const exportResponse: StatusExportResponse = {
+      export_metadata: {
+        export_type: 'status_filter',
+        status_filter: 'complete',
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email
+      },
+      tasks: completedTasks.map(toApiTask),
+      projects_summary: projectsSummary,
+      statistics: {
+        total_tasks: completedTasks.length,
+        projects_affected: Object.keys(projectsSummary).length,
+        completion_distribution: Object.fromEntries(
+          Object.entries(projectsSummary).map(([project, data]) => [project, data.task_count])
+        )
+      }
+    };
+
+    // Handle different formats  
+    const format = (req.query.format as string) || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, 'completed-tasks-export');
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="completed-tasks-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="completed-tasks-export.json"');
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<StatusExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Complete tasks export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export completed tasks',
+      code: 'COMPLETE_TASKS_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// GET /api/export/tasks/incomplete - Export all incomplete tasks
+router.get('/tasks/incomplete', statusExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const taskList = getTaskListForUser(req.user!.id);
+    const incompleteTasks = taskList.tasks.filter((task: any) => task.completed === false);
+
+    // Group by project for summary
+    const projectsSummary: { [key: string]: { task_count: number; completion_rate: number } } = {};
+    const allTasksByProject = new Map<string, { total: number; completed: number }>();
+
+    // Calculate project summaries
+    for (const task of taskList.tasks) {
+      const projectName = task.project || 'No Project';
+      if (!allTasksByProject.has(projectName)) {
+        allTasksByProject.set(projectName, { total: 0, completed: 0 });
+      }
+      const project = allTasksByProject.get(projectName)!;
+      project.total++;
+      if (task.completed) project.completed++;
+    }
+
+    allTasksByProject.forEach((stats, projectName) => {
+      if (projectName !== 'No Project' && (stats.total - stats.completed > 0)) {
+        projectsSummary[projectName] = {
+          task_count: stats.total - stats.completed,
+          completion_rate: stats.completed / stats.total
+        };
+      }
+    });
+
+    const exportResponse: StatusExportResponse = {
+      export_metadata: {
+        export_type: 'status_filter',
+        status_filter: 'incomplete',
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email
+      },
+      tasks: incompleteTasks.map(toApiTask),
+      projects_summary: projectsSummary,
+      statistics: {
+        total_tasks: incompleteTasks.length,
+        projects_affected: Object.keys(projectsSummary).length,
+        completion_distribution: Object.fromEntries(
+          Object.entries(projectsSummary).map(([project, data]) => [project, data.task_count])
+        )
+      }
+    };
+
+    // Handle different formats
+    const format = (req.query.format as string) || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(exportResponse, format, 'incomplete-tasks-export');
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="incomplete-tasks-export.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="incomplete-tasks-export.json"');
+      res.json({
+        success: true,
+        data: exportResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<StatusExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Incomplete tasks export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export incomplete tasks',
+      code: 'INCOMPLETE_TASKS_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+// POST /api/export/bulk - Bulk export operations (must come before /:id route)
+router.post('/bulk', bulkExportValidation, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError('Validation failed', errors.array());
+    }
+
+    const bulkRequest: BulkExportRequest = req.body;
+    const taskList = getTaskListForUser(req.user!.id);
+    const exports: Array<{
+      type: 'project' | 'date_range' | 'status_filter';
+      identifier: string;
+      data: ProjectExportResponse | DateRangeExportResponse | StatusExportResponse;
+    }> = [];
+
+    let totalTasks = 0;
+    let totalProjects = 0;
+    let dateRangeCoverage = 0;
+
+    // Export projects
+    if (bulkRequest.projects && bulkRequest.projects.length > 0) {
+      for (const projectName of bulkRequest.projects) {
+        const projectTasks = taskList.tasks.filter((task: any) => task.project === projectName);
+        
+        if (projectTasks.length > 0) {
+          const completedCount = projectTasks.filter((task: any) => task.completed).length;
+
+          const projectExport: ProjectExportResponse = {
+            export_metadata: {
+              export_type: 'project',
+              project_name: projectName,
+              exported_at: new Date().toISOString(),
+              exported_by: req.user!.email,
+              filters_applied: { status: 'all' },
+              version: '1.0'
+            },
+            project: {
+              name: projectName,
+              created_at: Math.min(...projectTasks.map((t: any) => new Date(t.date).getTime())).toString(),
+              task_count: projectTasks.length,
+              completed_count: completedCount,
+              completion_rate: completedCount / projectTasks.length
+            },
+            tasks: projectTasks.map(toApiTask),
+            statistics: {
+              total_tasks: projectTasks.length,
+              completed_tasks: completedCount,
+              pending_tasks: projectTasks.length - completedCount,
+              completion_rate: completedCount / projectTasks.length
+            }
+          };
+
+          exports.push({
+            type: 'project',
+            identifier: projectName,
+            data: projectExport
+          });
+
+          totalTasks += projectTasks.length;
+          totalProjects++;
+        }
+      }
+    }
+
+    // Export date ranges
+    if (bulkRequest.date_ranges && bulkRequest.date_ranges.length > 0) {
+      for (const dateRange of bulkRequest.date_ranges) {
+        const rangeTasks = taskList.tasks.filter((task: any) => 
+          task.date >= dateRange.start && task.date <= dateRange.end
+        );
+
+        const totalDays = calculateDateDifference(dateRange.start, dateRange.end);
+        const businessDays = calculateBusinessDays(dateRange.start, dateRange.end);
+        const completedTasks = rangeTasks.filter((task: any) => task.completed).length;
+
+        const dateRangeExport: DateRangeExportResponse = {
+          export_metadata: {
+            export_type: 'date_range',
+            date_from: dateRange.start,
+            date_to: dateRange.end,
+            exported_at: new Date().toISOString(),
+            exported_by: req.user!.email,
+            filters_applied: { status: 'all' },
+            version: '1.0'
+          },
+          date_range: {
+            start_date: dateRange.start,
+            end_date: dateRange.end,
+            total_days: totalDays,
+            business_days: businessDays
+          },
+          tasks: rangeTasks.map(toApiTask),
+          daily_breakdown: {}, // Simplified for bulk export
+          statistics: {
+            total_tasks: rangeTasks.length,
+            completed_tasks: completedTasks,
+            pending_tasks: rangeTasks.length - completedTasks,
+            completion_rate: rangeTasks.length > 0 ? completedTasks / rangeTasks.length : 0,
+            most_productive_day: dateRange.start,
+            least_productive_day: dateRange.end,
+            average_tasks_per_day: rangeTasks.length / totalDays
+          }
+        };
+
+        exports.push({
+          type: 'date_range',
+          identifier: dateRange.label || `${dateRange.start}-to-${dateRange.end}`,
+          data: dateRangeExport
+        });
+
+        totalTasks += rangeTasks.length;
+        dateRangeCoverage += totalDays;
+      }
+    }
+
+    // Export status filters
+    if (bulkRequest.status_filters && bulkRequest.status_filters.length > 0) {
+      for (const statusFilter of bulkRequest.status_filters) {
+        let statusTasks = taskList.tasks;
+        
+        if (statusFilter === 'complete') {
+          statusTasks = statusTasks.filter((task: any) => task.completed === true);
+        } else if (statusFilter === 'incomplete') {
+          statusTasks = statusTasks.filter((task: any) => task.completed === false);
+        }
+
+        const statusExport: StatusExportResponse = {
+          export_metadata: {
+            export_type: 'status_filter',
+            status_filter: statusFilter,
+            exported_at: new Date().toISOString(),
+            exported_by: req.user!.email
+          },
+          tasks: statusTasks.map(toApiTask),
+          projects_summary: {}, // Simplified for bulk
+          statistics: {
+            total_tasks: statusTasks.length,
+            projects_affected: new Set(statusTasks.map((t: any) => t.project).filter(Boolean)).size,
+            completion_distribution: {}
+          }
+        };
+
+        exports.push({
+          type: 'status_filter',
+          identifier: statusFilter,
+          data: statusExport
+        });
+
+        totalTasks += statusTasks.length;
+      }
+    }
+
+    const bulkResponse: BulkExportResponse = {
+      export_metadata: {
+        export_type: 'bulk',
+        exported_at: new Date().toISOString(),
+        exported_by: req.user!.email,
+        bulk_request: bulkRequest,
+        version: '1.0'
+      },
+      exports,
+      summary: {
+        total_exports: exports.length,
+        total_tasks: totalTasks,
+        total_projects: totalProjects,
+        date_range_coverage: dateRangeCoverage
+      }
+    };
+
+    // Handle different formats
+    const format = bulkRequest.format || 'json';
+    
+    if (format !== 'json') {
+      const converted = convertExportData(bulkResponse, format, `bulk-export-${Date.now()}`);
+      res.setHeader('Content-Type', converted.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="bulk-export-${Date.now()}.${converted.extension}"`);
+      res.send(converted.content);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="bulk-export-${Date.now()}.json"`);
+      res.json({
+        success: true,
+        data: bulkResponse,
+        timestamp: new Date().toISOString()
+      } as ApiResponse<BulkExportResponse>);
+    }
+
+  } catch (error) {
+    console.error('Bulk export error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to perform bulk export',
+      code: 'BULK_EXPORT_ERROR',
+      timestamp: new Date().toISOString()
+    } as ApiResponse);
+  }
+});
+
+export { router as exportRoutes };

@@ -1,73 +1,107 @@
 # TASK.SH Documentation
 
-This directory contains comprehensive documentation for the TASK.SH API + MCP platform transformation project.
+Welcome to the comprehensive documentation for TASK.SH, a modern todo management platform with CLI, UI, and API interfaces.
 
 ## 📁 Documentation Structure
 
-### `/planning/` - Project Planning & Timeline
-- **[ROADMAP.md](planning/ROADMAP.md)** - Complete development roadmap with 4-phase strategy
-- **[IMPLEMENTATION_TIMELINE.md](planning/IMPLEMENTATION_TIMELINE.md)** - Detailed 6-week development timeline with resource allocation
+### 🔧 API Documentation
+- **[API Usage Guide](api/API_README.md)** - Complete API reference with examples and authentication
+- **[Fumadocs Plan](api/FUMADOCS_PLAN.md)** - Interactive documentation implementation strategy
 
-### `/product/` - Product Requirements & Specifications  
-- **[PRD.md](product/PRD.md)** - Product Requirements Document with 120+ feature specifications
+### 🏗 Architecture & Planning
+- **[Master Plan](architecture/PLAN.md)** - Overall project architecture and strategy
+- **[Legacy PRD](architecture/PRD.md)** - Original product requirements document
 
-### `/technical/` - Technical Specifications
-- **[EXPORT_SPECIFICATION.md](technical/EXPORT_SPECIFICATION.md)** - Multi-format export system (JSON, Markdown, Excel)
+### 📋 Product Documentation
+- **[Product Requirements Document](product/PRD.md)** - Complete feature specifications and user stories
+- **[MCP Server PRD](product/MCP_Server_PRD.md)** - Model Context Protocol integration specifications
 
-## 🎯 Project Overview
+### 📅 Project Planning
+- **[Implementation Roadmap](planning/ROADMAP.md)** - 4-phase development strategy
+- **[Implementation Timeline](planning/IMPLEMENTATION_TIMELINE.md)** - Detailed development schedule
 
-Transform TASK.SH from a CLI/UI todo application into a comprehensive productivity platform with:
+### ⚙️ Setup & Deployment
+- **[Production Setup](setup/PRODUCTION-SETUP.md)** - Production deployment and security configuration
+- **[Supabase Setup](setup/SUPABASE_SETUP.md)** - Database and authentication setup guide
 
-- **REST API**: Full-featured API for third-party integrations
-- **MCP Integration**: Model Context Protocol for AI-powered workflows  
-- **Multi-format Export**: JSON, Markdown, and Excel export capabilities
-- **Real-time Sync**: WebSocket synchronization across all clients
-- **Developer Ecosystem**: Platform for building custom integrations
+### 🛠 Technical Specifications
+- **[Export Specification](technical/EXPORT_SPECIFICATION.md)** - Multi-format export system (.json, .md, .xlsx)
 
-## 📋 Quick Reference
+## 🚀 Quick Start
 
-### Key Phases
-1. **Phase 1** (Weeks 1-2): Core API Foundation
-2. **Phase 2** (Week 3): MCP Integration  
-3. **Phase 3** (Weeks 4-5): Advanced Features (Export, Real-time, Webhooks)
-4. **Phase 4** (Week 6): Client Migration & Launch
+### For API Usage
+1. Start with **[API Usage Guide](api/API_README.md)** - Get up and running with the REST API
+2. Login with your credentials and start making requests
+3. Review the **[Fumadocs Plan](api/FUMADOCS_PLAN.md)** for interactive documentation
 
-### Success Metrics
+### For Development  
+1. Review the **[Implementation Roadmap](planning/ROADMAP.md)** for project overview
+2. Check **[Production Setup](setup/PRODUCTION-SETUP.md)** for deployment requirements
+3. Follow **[Implementation Timeline](planning/IMPLEMENTATION_TIMELINE.md)** for development phases
+
+### For Product Understanding
+1. Read the **[Product Requirements Document](product/PRD.md)** for complete feature specifications
+2. Explore **[MCP Server PRD](product/MCP_Server_PRD.md)** for AI integration capabilities
+
+## 📊 Project Overview
+
+TASK.SH is evolving from a CLI-first todo application into a comprehensive platform offering:
+
+1. **Command-Line Interface** - Fast, keyboard-driven task management ✅
+2. **Interactive UI** - Visual interface built with React/Ink ✅  
+3. **RESTful API** - Programmatic access for integrations ✅
+4. **Model Context Protocol (MCP)** - AI-powered workflow automation 🔄
+
+## 🗺 Architecture Evolution
+
+The project follows a 4-phase implementation strategy:
+
+- **Phase 1: Core API Foundation** ✅ - Express.js server with authentication
+- **Phase 2: MCP Integration** 🔄 - AI tool protocol implementation  
+- **Phase 3: Advanced Features** 📋 - Export system and bulk operations
+- **Phase 4: Production Optimization** 🚀 - Performance and security enhancements
+
+## 📈 Current Status
+
+- ✅ CLI and UI interfaces fully functional
+- ✅ Supabase authentication and cloud sync
+- ✅ Express.js API server operational
+- ✅ Comprehensive API documentation available
+- 🔄 Interactive documentation (Fumadocs) planned
+- 📋 MCP integration in planning phase
+- 📋 Export system specification complete
+
+## 🔍 Finding Documentation
+
+Use this guide to quickly locate the documentation you need:
+
+| I want to... | Go to... |
+|--------------|----------|
+| Use the API | [API Usage Guide](api/API_README.md) |
+| Set up production | [Production Setup](setup/PRODUCTION-SETUP.md) |
+| Understand the product | [Product Requirements](product/PRD.md) |
+| Plan development | [Implementation Roadmap](planning/ROADMAP.md) |
+| Configure database | [Supabase Setup](setup/SUPABASE_SETUP.md) |
+| Build documentation | [Fumadocs Plan](api/FUMADOCS_PLAN.md) |
+
+## 📋 Technology Stack
+
+- **API**: Express.js + TypeScript
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: JWT + Supabase Auth
+- **Documentation**: Fumadocs + OpenAPI
+- **Export**: Multi-format (JSON, Markdown, Excel)
+- **MCP**: Custom MCP server integration
+
+## 🎯 Success Metrics
+
 - API Response Time: <100ms
 - Uptime: >99.9%
 - User Retention: >95% during transition
 - MCP Tool Compatibility: 3+ AI tools
 - Export Usage: >25% of users
 
-### Technology Stack
-- **API**: Express.js + TypeScript
-- **Database**: Supabase (PostgreSQL)
-- **MCP**: Custom MCP server
-- **Export**: ExcelJS, Markdown processors
-- **Real-time**: WebSocket + Redis
-
-## 🚀 Getting Started
-
-1. **Read the Roadmap**: Start with [planning/ROADMAP.md](planning/ROADMAP.md) for project overview
-2. **Review Requirements**: Check [product/PRD.md](product/PRD.md) for detailed specifications  
-3. **Plan Implementation**: Use [planning/IMPLEMENTATION_TIMELINE.md](planning/IMPLEMENTATION_TIMELINE.md) for development planning
-4. **Understand Export Features**: Review [technical/EXPORT_SPECIFICATION.md](technical/EXPORT_SPECIFICATION.md) for export system details
-
-## 📊 Project Scope
-
-- **Timeline**: 6 weeks (240-320 development hours)
-- **Team Size**: 2-3 developers
-- **Budget**: Buffer time included (20% additional)
-- **Risk Level**: Medium (well-planned with mitigation strategies)
-
-## 🔗 Related Resources
-
-- **Current Codebase**: Main TASK.SH application
-- **Supabase Dashboard**: Database and authentication management
-- **MCP Protocol**: Model Context Protocol specification
-- **API Documentation**: Will be generated during Phase 1
-
 ---
 
-*Last Updated: January 2025*  
-*Documentation Version: 1.0*
+*Last Updated: July 2025*  
+*Documentation Version: 2.0*
