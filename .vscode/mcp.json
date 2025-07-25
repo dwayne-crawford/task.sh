@@ -1,9 +1,15 @@
 {
   "servers": {
     "tasksh": {
-      "url": "https://task-sh.onrender.com/",
+      "name": "Task.sh HTTP Server",
+      "url": "https://task-sh.onrender.com",
       "headers": {
-        "Authorization": "Bearer sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo"
+        "Authorization": "Bearer sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo",
+        "Content-Type": "application/json"
+      },
+      "capabilities": {
+        "context": true,
+        "export": true
       }
     }
   },
