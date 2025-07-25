@@ -40,5 +40,14 @@
     "subtasks": [],
     "isExpanded": false,
     "project": null
+  },
+  {
+    "id": "ojxkr87iv",
+    "description": "MCP server task creation test #testing",
+    "completed": false,
+    "date": "2025-07-26",
+    "subtasks": [],
+    "isExpanded": false,
+    "project": "testing"
   }
 ]

@@ -15,6 +15,7 @@ import { CalendarScreen } from './CalendarScreen.js';
 import { ListScreen } from './ListScreen.js';
 import { CommandMenu } from './CommandMenu.js';
 import { Submenu } from './Submenu.js';
+import { ApiScreen } from './ApiScreen.js';
 
 export function TodoApp() {
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0, 10));
@@ -38,6 +39,7 @@ export function TodoApp() {
   const [showProjectsScreen, setShowProjectsScreen] = useState(false);
   const [showCalendarScreen, setShowCalendarScreen] = useState(false);
   const [showListScreen, setShowListScreen] = useState(false);
+  const [showApiScreen, setShowApiScreen] = useState(false);
   const [showTaskIds, setShowTaskIds] = useState(false);
   const [slashCommand, setSlashCommand] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
@@ -509,6 +511,19 @@ export function TodoApp() {
         setActiveCommand(null);
         break;
       
+      case '/api':
+        if (!authService.isAuthenticated()) {
+          console.log('❌ You must be signed in to manage API keys');
+          console.log('💡 Use /login to sign in first');
+        } else {
+          setShowApiScreen(true);
+        }
+        setSlashCommand('');
+        setCommandMenuVisible(false);
+        setSubmenuVisible(false);
+        setActiveCommand(null);
+        break;
+      
       default:
         // Unknown command - silently reset
         setSlashCommand('');
@@ -555,6 +570,7 @@ export function TodoApp() {
     ]},
     { command: '/ids', description: 'Toggle task IDs' },
     { command: '/status', description: 'Show service status' },
+    { command: '/api', description: 'Manage API keys for MCP server integration' },
   ];
 
   // Build flat list of all visible items (tasks + expanded subtasks)
@@ -749,6 +765,12 @@ export function TodoApp() {
     // Handle list screen closure
     if (showListScreen) {
       setShowListScreen(false);
+      return;
+    }
+
+    // Handle API screen - let ApiScreen component handle its own input
+    if (showApiScreen) {
+      // ApiScreen handles its own input and will call onClose when needed
       return;
     }
 
@@ -1049,6 +1071,14 @@ export function TodoApp() {
         taskList={taskList}
         onClose={() => setShowListScreen(false)}
         initialDate={currentDate}
+      />
+    );
+  }
+
+  if (showApiScreen) {
+    return (
+      <ApiScreen 
+        onClose={() => setShowApiScreen(false)}
       />
     );
   }

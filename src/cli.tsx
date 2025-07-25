@@ -7,6 +7,7 @@ import { Task } from './task.js';
 import { TodoApp } from './components/TodoApp.js';
 import { AuthService } from './auth.js';
 import { CloudTaskList } from './cloud-task-list.js';
+import { apiCommand } from './commands/api.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -346,6 +347,7 @@ const argv = yargs()
     
     process.exit(0);
   })
+  .command(apiCommand)
   .help()
   .alias('h', 'help')
   .parse(process.argv.slice(2), (err: any, argv: any, output: string) => {
