@@ -147,6 +147,147 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['status', 'format'],
         },
       },
+      {
+        name: 'create_task',
+        description: 'Create a new task',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            description: {
+              type: 'string',
+              description: 'Task description',
+            },
+            date: {
+              type: 'string',
+              description: 'Task date in YYYY-MM-DD format (optional, defaults to today)',
+            },
+            project: {
+              type: 'string',
+              description: 'Project name (optional, use #project format)',
+            },
+          },
+          required: ['description'],
+        },
+      },
+      {
+        name: 'update_task',
+        description: 'Update an existing task',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task_id: {
+              type: 'string',
+              description: 'ID of the task to update',
+            },
+            description: {
+              type: 'string',
+              description: 'New task description (optional)',
+            },
+            completed: {
+              type: 'boolean',
+              description: 'Task completion status (optional)',
+            },
+            date: {
+              type: 'string',
+              description: 'Task date in YYYY-MM-DD format (optional)',
+            },
+          },
+          required: ['task_id'],
+        },
+      },
+      {
+        name: 'delete_task',
+        description: 'Delete a task',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task_id: {
+              type: 'string',
+              description: 'ID of the task to delete',
+            },
+          },
+          required: ['task_id'],
+        },
+      },
+      {
+        name: 'toggle_task',
+        description: 'Toggle task completion status',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task_id: {
+              type: 'string',
+              description: 'ID of the task to toggle',
+            },
+          },
+          required: ['task_id'],
+        },
+      },
+      {
+        name: 'get_task',
+        description: 'Get details of a specific task',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task_id: {
+              type: 'string',
+              description: 'ID of the task to retrieve',
+            },
+          },
+          required: ['task_id'],
+        },
+      },
+      {
+        name: 'list_tasks_filtered',
+        description: 'List tasks with advanced filtering and pagination',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            page: {
+              type: 'number',
+              description: 'Page number (default: 1)',
+            },
+            limit: {
+              type: 'number',
+              description: 'Number of tasks per page (default: 50, max: 100)',
+            },
+            completed: {
+              type: 'boolean',
+              description: 'Filter by completion status',
+            },
+            date: {
+              type: 'string',
+              description: 'Filter by specific date (YYYY-MM-DD)',
+            },
+            date_from: {
+              type: 'string',
+              description: 'Filter tasks from this date (YYYY-MM-DD)',
+            },
+            date_to: {
+              type: 'string',
+              description: 'Filter tasks to this date (YYYY-MM-DD)',
+            },
+            project: {
+              type: 'string',
+              description: 'Filter by project name',
+            },
+            search: {
+              type: 'string',
+              description: 'Search in task descriptions',
+            },
+            sort: {
+              type: 'string',
+              enum: ['date', 'created_at', 'updated_at', 'description'],
+              description: 'Field to sort by (default: date)',
+            },
+            order: {
+              type: 'string',
+              enum: ['asc', 'desc'],
+              description: 'Sort order (default: desc)',
+            },
+          },
+        },
+      },
     ],
   };
 });
@@ -190,6 +331,82 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           status: args.status,
           format: args.format,
         });
+        break;
+        
+      case 'create_task':
+        if (!args || !args.description) {
+          throw new Error('Task description is required');
+        }
+        
+        // Build task description with project tag if provided
+        let taskDescription = args.description as string;
+        if (args.project && !taskDescription.includes('#')) {
+          const project = (args.project as string).startsWith('#') 
+            ? args.project as string 
+            : `#${args.project}`;
+          taskDescription = `${taskDescription} ${project}`;
+        }
+        
+        data = await makeRequest('/api/tasks', 'POST', {
+          description: taskDescription,
+          date: args.date || new Date().toISOString().split('T')[0], // Default to today
+        });
+        break;
+
+      case 'update_task':
+        if (!args || !args.task_id) {
+          throw new Error('Task ID is required');
+        }
+        
+        const updateData: any = {};
+        if (args.description) updateData.description = args.description;
+        if (args.completed !== undefined) updateData.completed = args.completed;
+        if (args.date) updateData.date = args.date;
+        
+        data = await makeRequest(`/api/tasks/${args.task_id}`, 'PUT', updateData);
+        break;
+
+      case 'delete_task':
+        if (!args || !args.task_id) {
+          throw new Error('Task ID is required');
+        }
+        
+        data = await makeRequest(`/api/tasks/${args.task_id}`, 'DELETE');
+        break;
+
+      case 'toggle_task':
+        if (!args || !args.task_id) {
+          throw new Error('Task ID is required');
+        }
+        
+        data = await makeRequest(`/api/tasks/${args.task_id}/toggle`, 'PUT');
+        break;
+
+      case 'get_task':
+        if (!args || !args.task_id) {
+          throw new Error('Task ID is required');
+        }
+        
+        data = await makeRequest(`/api/tasks/${args.task_id}`);
+        break;
+
+      case 'list_tasks_filtered':
+        // Build query string for filtering
+        const queryParams = new URLSearchParams();
+        if (args?.page) queryParams.append('page', args.page.toString());
+        if (args?.limit) queryParams.append('limit', args.limit.toString());
+        if (args?.completed !== undefined && args.completed !== null) queryParams.append('completed', args.completed.toString());
+        if (args?.date) queryParams.append('date', args.date.toString());
+        if (args?.date_from) queryParams.append('date_from', args.date_from.toString());
+        if (args?.date_to) queryParams.append('date_to', args.date_to.toString());
+        if (args?.project) queryParams.append('project', args.project.toString());
+        if (args?.search) queryParams.append('search', args.search.toString());
+        if (args?.sort) queryParams.append('sort', args.sort.toString());
+        if (args?.order) queryParams.append('order', args.order.toString());
+        
+        const queryString = queryParams.toString();
+        const endpoint = queryString ? `/api/tasks?${queryString}` : '/api/tasks';
+        data = await makeRequest(endpoint);
         break;
         
       default:
