@@ -180,10 +180,12 @@ export class ApiKeyManager {
   }> {
     try {
       if (!supabase) {
+        console.error('[ApiKeyManager] Supabase connection not available.');
         return { valid: false, error: 'Database connection not available' };
       }
 
       const keyHash = createHash('sha256').update(fullKey).digest('hex');
+      console.error(`[ApiKeyManager] Generated keyHash: ${keyHash}`);
 
       const { data, error } = await supabase
         .from('api_keys')
@@ -192,12 +194,15 @@ export class ApiKeyManager {
         .eq('is_active', true)
         .single();
 
+      console.error(`[ApiKeyManager] Supabase query result - data: ${JSON.stringify(data)}, error: ${JSON.stringify(error)}`);
+
       if (error || !data) {
         return { valid: false, error: 'Invalid API key' };
       }
 
       // Check if key is expired
       if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        console.error('[ApiKeyManager] API key expired.');
         return { valid: false, error: 'API key has expired' };
       }
 
