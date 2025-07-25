@@ -87,8 +87,13 @@ app.get('/health', (req: Request, res: Response) => {
 
 // MCP Server Info endpoint
 const handler = (req: Request, res: Response) => {
+  console.log(`[MCP] Request to /`);
+  console.log(`[MCP] Method: ${req.method}`);
+  console.log(`[MCP] Headers:`, req.headers);
+  console.log(`[MCP] Body:`, req.body);
+
   res.setHeader('Content-Type', 'application/json');
-  res.json({
+  const responseBody = {
     name: 'Task.sh MCP Server',
     description: 'Model Context Protocol server for Task.sh - Provides task context and export tools for LLMs',
     version: '1.0.0',
@@ -117,7 +122,9 @@ const handler = (req: Request, res: Response) => {
       context: '/context/*',
       tools: '/tools/*'
     }
-  });
+  };
+  console.log(`[MCP] Sending response:`, responseBody);
+  res.json(responseBody);
 };
 
 app.get('/', handler);

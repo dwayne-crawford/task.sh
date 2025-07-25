@@ -1,15 +1,12 @@
 {
   "servers": {
     "tasksh": {
-      "name": "Task.sh HTTP Server",
-      "url": "https://task-sh.onrender.com",
-      "headers": {
-        "Authorization": "Bearer sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo",
-        "Content-Type": "application/json"
-      },
-      "capabilities": {
-        "context": true,
-        "export": true
+      "command": "node",
+      "args": [
+        "/Users/dwayne/Development/App/NodeJS/todo-cli/dist/mcp-remote-bridge.js"
+      ],
+      "env": {
+        "API_KEY": "sk_user_jANxpVlKmtHJR2uFb8Ssth7ztEH0aFLcYZu2zeKbXlo"
       }
     }
   },

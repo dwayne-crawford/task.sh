@@ -8,19 +8,22 @@
     "start:api": "node dist/api/server.js",
     "start:mcp": "node dist/mcp-start.js",
     "start:mcp-protocol": "node dist/mcp-protocol-server.js",
+    "start:mcp-remote": "node dist/mcp-remote-bridge.js",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "dev": "tsc && node dist/cli.js",
     "dev:api": "tsc && node dist/api/server.js",
     "dev:mcp": "tsc && node dist/mcp-start.js",
     "dev:mcp-protocol": "tsc && node dist/mcp-protocol-server.js",
+    "dev:mcp-remote": "tsc && node dist/mcp-remote-bridge.js",
     "dev:all": "npm run build && concurrently \"npm run start:api\" \"npm run start:mcp\"",
     "install:global": "npm run build && npm install -g .",
     "uninstall:global": "npm uninstall -g todo-cli",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "todo": "dist/cli.js"
+    "todo": "dist/cli.js",
+    "tasksh-mcp-bridge": "dist/mcp-remote-bridge.js"
   },
   "keywords": [
     "todo",
