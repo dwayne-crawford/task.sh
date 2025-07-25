@@ -41,6 +41,7 @@ const apiKeyAuth = async (req: AuthenticatedRequest, res: Response, next: NextFu
     const apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
     console.error(`[MCP Auth] Extracted API Key (masked): ${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 5)}`);
 
+    console.error(`[MCP Auth] Calling ApiKeyManager.validateApiKey...`);
     // Validate API key using ApiKeyManager
     const validation = await ApiKeyManager.validateApiKey(apiKey);
     console.error(`[MCP Auth] API Key Validation Result: ${JSON.stringify(validation)}`);
