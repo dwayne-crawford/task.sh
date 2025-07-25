@@ -141,6 +141,7 @@ app.post('/', handler);
 // Import routes and OpenAPI spec
 import { contextRoutes } from './mcp/context-routes.js';
 import { toolsRoutes } from './mcp/tools-routes.js';
+import { taskRoutes } from './api/routes/tasks.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -165,6 +166,7 @@ app.get('/openapi.json', (req: Request, res: Response) => {
 // Apply authentication middleware to protected routes
 app.use('/context', apiKeyAuth, contextRoutes);
 app.use('/tools', apiKeyAuth, toolsRoutes);
+app.use('/api/tasks', apiKeyAuth, taskRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
