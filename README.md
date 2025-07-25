@@ -1,9 +1,10 @@
-# TASK.SH - Todo CLI
+# TASK.SH - Todo CLI + MCP Server
 
-A powerful command-line todo application built with Node.js, TypeScript, and Ink. Manage your daily tasks with an interactive UI or command-line interface, featuring project organization, subtasks, cloud sync, and complete feature parity between CLI and interactive modes.
+A comprehensive task management system built with Node.js, TypeScript, and Ink. Features a powerful CLI/interactive interface plus an integrated Model Context Protocol (MCP) server for AI assistant integration.
 
-## Features
+## 🚀 Key Features
 
+### Core Task Management
 - **Interactive UI**: Beautiful terminal interface with TASK.SH branding
 - **Slash Commands**: Full CLI functionality available in interactive mode
 - **Cloud Sync**: Optional Supabase authentication for cross-device sync
@@ -14,6 +15,14 @@ A powerful command-line todo application built with Node.js, TypeScript, and Ink
 - **Complete Feature Parity**: Every CLI command available as slash command
 - **Smart Authentication**: Optional login via `/login` command
 - **Data Persistence**: Separate local and cloud storage
+
+### 🤖 MCP Server Integration
+- **AI Assistant Access**: Claude Code, Cursor IDE, GitHub Copilot, ChatGPT integration
+- **Read-Only Security**: Safe data access for AI tools without modification risks
+- **API Key Management**: Secure authentication with expiration controls
+- **Multiple Export Formats**: JSON, CSV, Markdown, Excel export capabilities
+- **Real-Time Context**: AI assistants get live task data and productivity insights
+- **Cross-Platform Support**: Works with any HTTP-compatible AI tool
 
 ## Installation
 
@@ -78,6 +87,12 @@ todo list
 # Show calendar view
 todo calendar
 
+# Start MCP server for AI integration
+npm run dev:mcp
+
+# Generate API key for AI tools
+todo api generate-key "Claude Integration"
+
 # Get help
 todo --help
 ```
@@ -118,6 +133,7 @@ All CLI functionality is available via slash commands in interactive mode:
 | `/projects` | Show all projects | `/projects` |
 | `/sync` | Sync with cloud | `/sync` |
 | `/ids` | Toggle task ID display | `/ids` |
+| `/api` | API key management interface | `/api` |
 
 **Smart Command Behavior:**
 - Commands without arguments use current selection
@@ -146,6 +162,213 @@ Full-featured calendar with the same options as CLI:
 - **Main view**: Press `i` or use `/ids` to toggle task ID display
 - **Advanced views**: Both `/list` and `/calendar` have built-in ID toggle
 - **IDs show first 8 characters** for delete/edit operations
+
+#### `/api` - API Key Management Interface
+Complete API key management for MCP server integration:
+- **Generate keys**: `g` - Create new API keys with custom expiration
+- **Copy to clipboard**: `c` - Automatically copy generated keys
+- **Navigate keys**: `↑ ↓` - Browse existing keys
+- **Revoke keys**: `r` or `Delete` - Remove access for selected keys
+- **Refresh list**: `R` - Update key list and status
+- **Key details**: View expiration, usage stats, and security info
+- **Exit**: `Esc` - Return to main interface
+
+## 🤖 MCP Server Integration
+
+The Task.sh MCP Server provides **read-only** access to your task data for AI assistants like Claude Code, Cursor IDE, GitHub Copilot, and ChatGPT. This enables powerful AI-powered task analysis, productivity insights, and data export capabilities.
+
+### 🔑 API Key Management
+
+#### Interactive UI Method (Recommended)
+```bash
+# Launch interactive mode
+todo
+
+# Open API management interface
+/api
+
+# Generate new key:
+# - Press 'g' to generate
+# - Press 'n' to enter name
+# - Select expiration (30/90/365 days or never)
+# - Press 'c' to copy key to clipboard
+```
+
+#### CLI Method
+```bash
+# Generate with default 90-day expiration
+todo api generate-key "My MCP Key"
+
+# Custom expiration options
+todo api generate-key "Claude Desktop" --expires 30
+todo api generate-key "Long Term Integration" --expires 365
+todo api generate-key "Development Key" --expires never
+
+# View all your keys
+todo api list-keys
+
+# Revoke a key
+todo api revoke-key [keyId]
+
+# Get integration help
+todo api info
+```
+
+### 🖥️ Starting the MCP Server
+
+```bash
+# Development mode (auto-rebuilds)
+npm run dev:mcp
+
+# Production mode
+npm run start:mcp
+
+# Run both API and MCP servers
+npm run dev:all
+```
+
+**Expected output:**
+```
+🤖 Task.sh MCP Server running on port 3002
+📋 Environment: development
+🔗 Health check: http://localhost:3002/health
+🚀 MCP Server ready for LLM integration!
+```
+
+### 📊 Available API Endpoints
+
+#### Context Queries (GET requests)
+| Endpoint | Description | AI Use Case |
+|----------|-------------|-------------|
+| `/context/tasks/all` | All tasks with summary | "Show me all my tasks" |
+| `/context/tasks/incomplete` | Pending tasks only | "What needs to be done?" |
+| `/context/tasks/complete` | Completed tasks | "What did I accomplish?" |
+| `/context/tasks/due-today` | Today's tasks | "What's due today?" |
+| `/context/tasks/search?query=X` | Search tasks | "Find tasks about 'meeting'" |
+| `/context/tasks/:id` | Specific task | "Details on task abc123" |
+| `/context/projects` | Project summary | "Show project status" |
+| `/context/stats` | Productivity stats | "Analyze my productivity" |
+
+#### Export Tools (POST requests)
+| Endpoint | Purpose | Formats |
+|----------|---------|---------|
+| `/tools/export/status` | Export by status | JSON, CSV, Markdown, Excel |
+| `/tools/export/project` | Export by project | JSON, CSV, Markdown, Excel |
+| `/tools/export/date-range` | Export date range | JSON, CSV, Markdown, Excel |
+| `/tools/export/bulk` | Export everything | JSON, CSV, Markdown, Excel |
+
+### 🛠️ AI Platform Integration
+
+#### Claude Code (Anthropic)
+```bash
+# Direct HTTP access - no configuration required
+# Base URL: http://localhost:3002
+# Authentication: Bearer sk_user_YOUR_API_KEY
+
+# Example usage:
+"Using my task.sh MCP server at localhost:3002 with API key sk_user_ABC123..., 
+show me my incomplete tasks"
+```
+
+#### Claude Desktop
+Add to `~/.anthropic/claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "tasksh": {
+      "command": "node",
+      "args": ["/absolute/path/to/your/todo-cli/dist/mcp-start.js"],
+      "env": {
+        "MCP_PORT": "3002",
+        "API_KEY": "sk_user_YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+#### Cursor IDE
+```json
+{
+  "cursor.ai.mcpServers": {
+    "tasksh": {
+      "name": "Task.sh MCP Server",
+      "url": "http://localhost:3002",
+      "authentication": {
+        "type": "bearer",
+        "token": "sk_user_YOUR_API_KEY"
+      },
+      "capabilities": ["context", "export"]
+    }
+  }
+}
+```
+
+#### GitHub Copilot (VS Code)
+```json
+{
+  "github.copilot.mcp.servers": {
+    "tasksh": {
+      "url": "http://localhost:3002",
+      "headers": {
+        "Authorization": "Bearer sk_user_YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### 🧪 Testing Integration
+
+```bash
+# Test server health
+curl http://localhost:3002/health
+
+# Test authentication
+curl "http://localhost:3002/context/tasks/all" \
+  -H "Authorization: Bearer sk_user_YOUR_API_KEY"
+
+# Test export functionality
+curl -X POST "http://localhost:3002/tools/export/status" \
+  -H "Authorization: Bearer sk_user_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "incomplete", "format": "markdown"}'
+```
+
+### 🎯 AI Use Cases
+
+Once integrated, your AI assistant can:
+
+**Task Analysis:**
+- "What are my incomplete tasks and their priorities?"
+- "Analyze my productivity patterns over the last week"
+- "Which projects need the most attention?"
+
+**Data Export:**
+- "Export my work project tasks as a markdown report"
+- "Generate a CSV of all completed tasks this month"
+- "Create an Excel spreadsheet of overdue items"
+
+**Productivity Insights:**
+- "Show me my completion rates by project"
+- "What tasks am I consistently not completing?"
+- "Suggest task prioritization based on my patterns"
+
+### 🔐 Security Features
+
+- **Read-Only Access**: MCP server cannot modify or delete tasks
+- **API Key Authentication**: Secure token-based access control
+- **Key Expiration**: Automatic key expiration for security
+- **Usage Tracking**: Monitor when and how keys are used
+- **Local Network Only**: Server binds to localhost by default
+- **Encrypted Storage**: API keys are SHA-256 hashed in database
+
+### 📚 Complete Documentation
+
+For detailed setup instructions and platform-specific integration guides:
+- **Setup Guide**: `docs/mcp/SETUP.md`
+- **Platform Integrations**: `docs/mcp/PLATFORM_INTEGRATIONS.md`
+- **API Reference**: Available at `http://localhost:3002/openapi.json`
 
 ## CLI Commands
 
@@ -255,6 +478,48 @@ todo sync
 Sign out from account.
 ```bash
 todo logout
+```
+
+### API Management Commands
+
+#### `api generate-key <name>`
+Generate a new API key for MCP server integration.
+```bash
+# Generate with default 90-day expiration
+todo api generate-key "Claude Integration"
+
+# Custom expiration periods
+todo api generate-key "Short Term" --expires 30
+todo api generate-key "Long Term" --expires 365
+todo api generate-key "Permanent" --expires never
+```
+
+**Options:**
+- `--expires, -e`: Key expiration period (30/90/365/never, default: 90)
+- `--replace, -r`: Replace existing key with same name (default: true)
+
+#### `api list-keys`
+List all active API keys with status information.
+```bash
+todo api list-keys
+```
+
+Shows:
+- Key names and prefixes
+- Creation and expiration dates
+- Last used timestamps
+- Expiration warnings
+
+#### `api revoke-key <keyId>`
+Revoke an API key by ID.
+```bash
+todo api revoke-key abc123def456
+```
+
+#### `api info`
+Show information about MCP server integration and supported platforms.
+```bash
+todo api info
 ```
 
 ### Help
@@ -405,6 +670,9 @@ Every feature works identically across all usage modes:
 | Sync cloud | `sync` | - | `/sync` | ✅ |
 | Service status | `status` | - | `/status` | ✅ |
 | Authentication | `logout` | - | `/login` `/logout` | ✅ |
+| API key generation | `api generate-key` | - | `/api` → `g` | ✅ |
+| API key management | `api list-keys` `api revoke-key` | - | `/api` (full interface) | ✅ |
+| API integration info | `api info` | - | `/api` (contextual help) | ✅ |
 | Help | `--help` | - | `/help` | ✅ |
 
 **Complete Feature Parity Achieved!** ✅ All CLI functionality is now available in Interactive mode with equivalent or enhanced capabilities.
@@ -422,6 +690,10 @@ todo                         # Interactive mode for detailed work
 /add Call client #sales
 /projects                         # Check project status
 /sync                            # Manual sync if needed
+
+# AI-powered analysis (with MCP server running)
+# Ask your AI assistant: "What are my incomplete tasks and priorities?"
+# Or: "Analyze my productivity patterns for this week"
 ```
 
 ### Project Planning
@@ -448,10 +720,23 @@ todo list --all --project work --pending  # All pending work tasks
 /add "Prepare presentation #work"
 /logout                          # Sign out
 
-# Device 2: Access anywhere
+# Device 2: Access anywhere  
 /login                           # Same account
 # See tasks from Device 1 automatically
 /add "Print handouts #work"      # Add more tasks
+```
+
+### AI-Powered Workflows
+```bash
+# Setup AI integration (one-time)
+todo api generate-key "Claude Desktop"  # Generate API key
+npm run dev:mcp                         # Start MCP server
+
+# AI assistant workflows:
+# "Export my work project tasks as markdown"
+# "What tasks are overdue and need attention?"
+# "Generate a productivity report for this week"
+# "Suggest task prioritization based on my patterns"
 ```
 
 ### Review and Reporting
@@ -467,7 +752,13 @@ todo projects
 
 # Interactive review
 /projects                        # Quick project overview
+/api                            # Manage AI integration keys
 /help                           # Remember all commands
+
+# AI-powered reporting (ask your AI assistant):
+# "Generate a weekly productivity summary"
+# "Create a project completion status report"
+# "What patterns do you see in my task management?"
 ```
 
 ## Advanced Examples
@@ -543,11 +834,19 @@ The `/help` command shows complete documentation:
 ```
 todo-cli/
 ├── src/                 # TypeScript source
+│   ├── mcp-server.ts    # MCP server implementation
+│   ├── api-key-manager.ts # API key management
+│   └── ...
 ├── dist/                # Compiled JavaScript
+│   ├── mcp-start.js     # MCP server entry point
+│   └── ...
 ├── data/
 │   ├── tasks.json       # Local/offline tasks
 │   ├── cloud-tasks.json # Authenticated user tasks
 │   └── offline-changes.json # Sync queue
+├── docs/mcp/            # MCP integration documentation
+│   ├── SETUP.md         # Complete setup guide
+│   └── PLATFORM_INTEGRATIONS.md # Platform-specific guides
 ├── .env                 # Supabase credentials (optional)
 └── README.md
 ```
@@ -597,6 +896,27 @@ todo
 - Check network connection for cloud features
 - Use offline mode if cloud sync not needed
 
+**MCP Server issues:**
+```bash
+# Check if MCP server is running
+curl http://localhost:3002/health
+
+# Verify API key is valid
+todo api list-keys
+
+# Check port conflicts
+lsof -i :3002
+
+# Restart MCP server
+npm run dev:mcp
+```
+
+**AI Integration issues:**
+- Verify API key format starts with `sk_user_`
+- Check MCP server is accessible from AI tool
+- Review platform-specific setup in `docs/mcp/`
+- Test with curl commands from documentation
+
 ### Performance Tips
 - Use project tags consistently for better filtering
 - Review and complete old tasks regularly
@@ -617,4 +937,4 @@ MIT License - feel free to use and modify for your needs.
 
 ---
 
-**TASK.SH**: Complete todo management with total CLI-Interactive feature parity. Work your way! 🎯
+**TASK.SH**: Complete todo management with CLI-Interactive feature parity + AI integration. Your tasks, your AI assistant, your way! 🎯🤖
