@@ -186,7 +186,22 @@ export class ApiKeyManager {
 
       const keyHash = createHash('sha256').update(fullKey).digest('hex');
       console.error(`[ApiKeyManager] Generated keyHash: ${keyHash}`);
+      console.error(`[ApiKeyManager] Full API key for verification: ${fullKey}`);
 
+      // First, let's check if the table exists and has any data
+      console.error(`[ApiKeyManager] Checking api_keys table...`);
+      const { data: tableCheck, error: tableError } = await supabase
+        .from('api_keys')
+        .select('id, key_hash, is_active')
+        .limit(5);
+      
+      console.error(`[ApiKeyManager] Table check - data count: ${tableCheck?.length || 0}, error: ${JSON.stringify(tableError)}`);
+      if (tableCheck && tableCheck.length > 0) {
+        console.error(`[ApiKeyManager] Sample key_hash from table: ${tableCheck[0].key_hash}`);
+      }
+
+      // Now attempt the actual query
+      console.error(`[ApiKeyManager] Executing main query with keyHash: ${keyHash}`);
       const { data, error } = await supabase
         .from('api_keys')
         .select('id, user_id, expires_at, is_active')
